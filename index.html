@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculate+ | Margin Estimator</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --amerit-yellow: #FDB913;
+      --amerit-dark: #121926;
+      --bg: #f4f6f8;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --good: #10b981;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --radius: 16px;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Raleway', sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      padding-bottom: 80px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Remove native browser arrows from number inputs for perfect centering */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+
+    /* Header */
+    .header {
+      background-color: #ffffff;
+      padding: 24px 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      border-bottom: 4px solid var(--amerit-yellow);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+    .header svg {
+      width: 40px;
+      height: 40px;
+      color: var(--amerit-dark);
+    }
+    .header h1 {
+      color: var(--amerit-dark);
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+    }
+    .plus {
+      color: var(--amerit-yellow);
+      font-size: 44px;
+      font-weight: 900;
+      line-height: 0;
+      vertical-align: -3px;
+      margin-left: 2px;
+    }
+
+    /* Layout Containers */
+    .hero-container {
+      max-width: 1700px;
+      margin: 32px auto 0;
+      padding: 0 32px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    
+    .container {
+      max-width: 1700px;
+      margin: 24px auto;
+      padding: 0 32px;
+      display: grid;
+      /* Balanced the columns to give the right side more space while keeping the left side wide enough for 3 squares */
+      grid-template-columns: 1.15fr 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    /* Hero Cards */
+    .hero-card {
+      background-color: var(--amerit-dark);
+      border-radius: var(--radius);
+      padding: 32px 24px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 10px 30px rgba(18, 25, 38, 0.12);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-card::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 6px;
+      background: var(--amerit-yellow); opacity: 0.15;
+    }
+    
+    .hero-val {
+      font-size: 60px;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 12px;
+      letter-spacing: -1px;
+    }
+    .hero-val.yellow { color: var(--amerit-yellow); }
+    .hero-val.white { color: #ffffff; }
+    
+    .hero-label {
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #94a3b8;
+    }
+    .hero-label .highlight { color: #fff; font-weight: 900; font-size: 16px; margin-left: 6px; }
+
+    /* Custom 3rd Tile Structure */
+    .tile-3-top {
+      font-size: 14px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;
+    }
+    .tile-3-top span { color: var(--amerit-yellow); font-size: 18px; font-weight: 900; margin-left: 6px; }
+    .tile-3-mid {
+      font-size: 60px; font-weight: 900; color: var(--amerit-yellow); margin-bottom: 12px; line-height: 1; letter-spacing: -1px;
+    }
+    .tile-3-bot {
+      font-size: 14px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;
+    }
+
+    /* Standard Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+      width: 100%;
+    }
+    .card-title {
+      font-size: 18px;
+      font-weight: 900;
+      margin-bottom: 24px;
+      color: var(--amerit-dark);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Interactive Button Toggles */
+    .toggle-group {
+      display: flex;
+      width: 100%;
+      max-width: 800px;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .toggle-btn { flex: 1; position: relative; }
+    .toggle-btn input { position: absolute; opacity: 0; cursor: pointer; }
+    .toggle-label {
+      display: flex; align-items: center; justify-content: center; background: #e2e8f0; color: var(--text-muted);
+      padding: 16px 0; border-radius: 8px; font-size: 16px; font-weight: 900; text-transform: uppercase; cursor: pointer;
+      transition: all 0.2s ease; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .toggle-btn input:checked + .toggle-label {
+      background: var(--amerit-yellow); color: var(--amerit-dark); box-shadow: 0 4px 12px rgba(253, 185, 19, 0.4);
+    }
+    .toggle-btn:hover .toggle-label { filter: brightness(0.95); }
+    .toggle-btn input:checked:hover + .toggle-label { filter: brightness(1.05); }
+
+    .checkbox-subtext {
+      font-size: 14px; color: var(--text-muted); margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border); font-weight: 600; text-align: center;
+    }
+
+    /* Interactive Vehicle Grid (Fixed to 3 Columns) */
+    .vehicle-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .v-card {
+      background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 20px; transition: all 0.2s;
+    }
+    .v-card:hover { border-color: #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+    
+    .v-header { font-size: 18px; font-weight: 900; color: var(--amerit-dark); margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+    
+    /* Stepper Input */
+    .stepper {
+      display: flex; align-items: center; background: #ffffff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 16px;
+    }
+    .step-btn {
+      background: #f1f5f9; border: none; color: var(--amerit-dark); font-size: 24px; font-weight: 600; width: 44px; height: 44px; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center;
+    }
+    .step-btn:hover { background: #e2e8f0; }
+    .stepper input {
+      flex: 1; width: 100%; border: none; text-align: center; font-size: 20px; font-weight: 900; color: var(--amerit-dark); outline: none;
+    }
+
+    /* Rates Grid */
+    .v-rates { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px;}
+    .v-rate-col label { display: block; font-size: 12px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; text-align: center;}
+    .v-rate-col input {
+      width: 100%; padding: 10px 6px; border: 1px solid var(--border); border-radius: 8px;
+      text-align: center; font-size: 14px; font-weight: 800; outline: none; transition: all 0.2s;
+    }
+    .v-rate-col input:focus { border-color: var(--amerit-yellow); box-shadow: 0 0 0 2px rgba(253, 185, 19, 0.15); }
+
+    /* Right Column Wrapper */
+    .right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Service Grid */
+    .service-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .service-card {
+      background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 24px; position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    }
+    /* Uniform Yellow Border */
+    .service-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--amerit-yellow); }
+    
+    .sc-title { font-size: 18px; font-weight: 900; margin-bottom: 24px; color: var(--amerit-dark); }
+    .sc-stat { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; }
+    .sc-stat span:first-child { color: var(--text-muted); font-weight: 700;}
+    .sc-stat span:last-child { font-weight: 900; color: var(--amerit-dark);}
+
+    /* Financial Breakdown Table */
+    .finance-breakdown {
+      background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    }
+    .fb-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 2px solid var(--border); padding-bottom: 16px;
+    }
+    .fb-header-title { font-size: 18px; font-weight: 900; color: var(--amerit-dark); text-transform: uppercase; letter-spacing: 0.5px; }
+    .model-badge { font-size: 14px; font-weight: 900; padding: 10px 18px; border-radius: 8px; transition: all 0.3s; }
+    
+    .fb-row { display: flex; justify-content: space-between; padding: 12px 0; font-size: 16px; }
+    .fb-row.sub { color: var(--text-muted); padding-left: 20px; font-size: 15px; font-weight: 600; }
+    .fb-row.bold { font-weight: 900; color: var(--amerit-dark); border-top: 1px solid var(--border); margin-top: 14px; padding-top: 18px; }
+    .fb-row.highlight { font-size: 22px; color: var(--amerit-dark); border-top: 2px solid var(--amerit-dark); margin-top: 18px; padding-top: 24px; }
+
+    button.reset-btn {
+      background: #f1f5f9; border: none; color: var(--text-muted); padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; text-transform: uppercase; transition: all 0.2s;
+    }
+    button.reset-btn:hover { background: #e2e8f0; color: var(--amerit-dark); }
+
+    .hidden-code { display: none; }
+
+    @media (max-width: 1400px) {
+      .container { grid-template-columns: 1fr; }
+      .vehicle-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+  </svg>
+  <h1>Calculate<span class="plus">+</span></h1>
+</div>
+
+<div class="hero-container">
+  <div class="hero-card">
+    <div class="hero-val yellow" id="heroUnits">0</div>
+    <div class="hero-label gray">OVERALL FLEET COUNT</div>
+  </div>
+  <div class="hero-card">
+    <div class="hero-val white" id="heroRev">$0</div>
+    <div class="hero-label gray">TOTAL REVENUE</div>
+  </div>
+  <div class="hero-card">
+    <div class="tile-3-top">TARGET FOP MARGIN <span id="heroTargetMargin">0%</span></div>
+    <div class="tile-3-mid" id="heroProjMargin">0%</div>
+    <div class="tile-3-bot">MARGIN: <span class="highlight" id="heroMarginDollar">$0</span></div>
+  </div>
+</div>
+
+<div class="container">
+  
+  <div class="card">
+    <div class="card-title">
+      OPERATIONAL VARIABLES
+      <button class="reset-btn" id="resetBtn">Reset Default</button>
+    </div>
+    
+    <div class="toggle-group">
+      <label class="toggle-btn">
+        <input type="checkbox" id="incERSA" checked>
+        <div class="toggle-label">ERSA</div>
+      </label>
+      <label class="toggle-btn">
+        <input type="checkbox" id="incPM" checked>
+        <div class="toggle-label">PM</div>
+      </label>
+      <label class="toggle-btn">
+        <input type="checkbox" id="incREP" checked>
+        <div class="toggle-label">Repair</div>
+      </label>
+    </div>
+    <div class="checkbox-subtext">Select all the services that apply to the prospective fleet. (PM and Repair are inherently linked).</div>
+
+    <div class="vehicle-grid" id="vehicleGrid">
+      </div>
+  </div>
+
+  <div class="right-col">
+    
+    <div class="service-grid">
+      <div class="service-card" id="cardERSA">
+        <div class="sc-title">ERSA</div>
+        <div class="sc-stat"><span>Annual Events</span><span id="ersaEvents">0</span></div>
+        <div class="sc-stat"><span>Headcount</span><span id="ersaFte">0</span></div>
+        <div class="sc-stat"><span>Vendor Spend</span><span id="ersaSpend">$0</span></div>
+      </div>
+      <div class="service-card" id="cardPM">
+        <div class="sc-title">PM</div>
+        <div class="sc-stat"><span>Annual Events</span><span id="pmEvents">0</span></div>
+        <div class="sc-stat"><span>Headcount</span><span id="pmFte">0</span></div>
+        <div class="sc-stat"><span>Vendor Spend</span><span id="pmSpend">$0</span></div>
+      </div>
+      <div class="service-card" id="cardREP">
+        <div class="sc-title">Repair</div>
+        <div class="sc-stat"><span>Annual Events</span><span id="repEvents">0</span></div>
+        <div class="sc-stat"><span>Headcount</span><span id="repFte">0</span></div>
+        <div class="sc-stat"><span>Vendor Spend</span><span id="repSpend">$0</span></div>
+      </div>
+    </div>
+
+    <div class="finance-breakdown">
+      <div class="fb-header">
+        <div class="fb-header-title">Portfolio Financials</div>
+        <div class="model-badge" id="modelStrategyLabel">MODEL: EVALUATING...</div>
+      </div>
+      
+      <div class="fb-row"><span>Total Vendor Cost (Before Markup)</span><span id="fbVendorCost">$0</span></div>
+      
+      <div class="fb-row bold"><span>Total Revenue Generated</span><span id="fbTotalRev">$0</span></div>
+      <div class="fb-row sub"><span>+ Handling Fee Revenue</span><span id="fbFeeRev">$0</span></div>
+      <div class="fb-row sub"><span>+ Monthly PVPM Revenue</span><span id="fbPvpmRev">$0</span></div>
+      <div class="fb-row sub"><span id="fbMarkupRevLabel">+ Vendor Markup Revenue (15%)</span><span id="fbMarkupRev">$0</span></div>
+      
+      <div class="fb-row bold" style="color: var(--danger);"><span>Total Headcount Cost (<span id="fbHcCount">0</span> @ $78,000)</span><span id="fbHcCost">-$0</span></div>
+      
+      <div class="fb-row highlight bold"><span>Total Margin ($)</span><span id="fbMarginDollar">$0</span></div>
+    </div>
+
+  </div>
+</div>
+
+<div id="hidden-pvpm-data" class="hidden-code"></div>
+
+<script>
+  const CLASSES = ['HD', 'MD', 'LD', 'TRAILER', 'REEFER', 'MHE', 'OTHER_1', 'OTHER_2'];
+  const DEFAULTS = {
+    HD: { count: 0, ersa_r: 1.2, pm_r: 2.0, rep_r: 2.0, c_ersa: 800, c_pm: 600, c_rep: 900 },
+    MD: { count: 0, ersa_r: 0.4, pm_r: 2.0, rep_r: 2.0, c_ersa: 550, c_pm: 450, c_rep: 650 },
+    LD: { count: 0, ersa_r: 0.2, pm_r: 2.0, rep_r: 2.0, c_ersa: 450, c_pm: 300, c_rep: 500 },
+    TRAILER: { count: 0, ersa_r: 1.3, pm_r: 2.0, rep_r: 2.0, c_ersa: 700, c_pm: 400, c_rep: 600 },
+    REEFER: { count: 0, ersa_r: 1.0, pm_r: 2.0, rep_r: 2.0, c_ersa: 1200, c_pm: 800, c_rep: 1200 },
+    MHE: { count: 0, ersa_r: 0.0, pm_r: 2.0, rep_r: 2.0, c_ersa: 0, c_pm: 300, c_rep: 500 },
+    OTHER_1: { count: 0, ersa_r: 0.0, pm_r: 2.0, rep_r: 2.0, c_ersa: 1000, c_pm: 500, c_rep: 1000 },
+    OTHER_2: { count: 0, ersa_r: 0.0, pm_r: 2.0, rep_r: 2.0, c_ersa: 1000, c_pm: 500, c_rep: 1000 }
+  };
+
+  const CONST = { hc_eff: 1500, hc_cost: 78000, fee: 95, markup_std: 0.15, markup_pvpm: 0.10, mhe_pvpm: 5.00 };
+  let state = JSON.parse(JSON.stringify(DEFAULTS));
+
+  const fC0 = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+  const fC2 = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
+
+  function initUI() {
+    const grid = document.getElementById('vehicleGrid');
+    grid.innerHTML = '';
+    
+    CLASSES.forEach(c => {
+      const displayName = c.replace('_', ' ');
+      const vCard = document.createElement('div');
+      vCard.className = 'v-card';
+      vCard.innerHTML = `
+        <div class="v-header">${displayName}</div>
+        
+        <div style="font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; text-align: center;">Unit Count</div>
+        <div class="stepper">
+          <button class="step-btn" onclick="stepVal('${c}', -1)">-</button>
+          <input type="number" id="inp_${c}_count" value="${state[c].count}" onchange="updateVal('${c}', 'count', this.value)">
+          <button class="step-btn" onclick="stepVal('${c}', 1)">+</button>
+        </div>
+        
+        <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin: 20px 0 8px; text-transform: uppercase; text-align: center;">Annual Events / Unit</div>
+        <div class="v-rates">
+          <div class="v-rate-col">
+            <label>Ersa</label>
+            <input type="number" step="0.1" value="${state[c].ersa_r}" onchange="updateVal('${c}', 'ersa_r', this.value)">
+          </div>
+          <div class="v-rate-col">
+            <label>PM</label>
+            <input type="number" step="0.1" value="${state[c].pm_r}" onchange="updateVal('${c}', 'pm_r', this.value)">
+          </div>
+          <div class="v-rate-col">
+            <label>Rep</label>
+            <input type="number" step="0.1" value="${state[c].rep_r}" onchange="updateVal('${c}', 'rep_r', this.value)">
+          </div>
+        </div>
+
+        <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin: 20px 0 8px; text-transform: uppercase; text-align: center;">Avg Repair Cost ($)</div>
+        <div class="v-rates" style="margin-bottom: 0;">
+          <div class="v-rate-col">
+            <label>Ersa</label>
+            <input type="number" step="1" value="${state[c].c_ersa}" onchange="updateVal('${c}', 'c_ersa', this.value)">
+          </div>
+          <div class="v-rate-col">
+            <label>PM</label>
+            <input type="number" step="1" value="${state[c].c_pm}" onchange="updateVal('${c}', 'c_pm', this.value)">
+          </div>
+          <div class="v-rate-col">
+            <label>Rep</label>
+            <input type="number" step="1" value="${state[c].c_rep}" onchange="updateVal('${c}', 'c_rep', this.value)">
+          </div>
+        </div>
+      `;
+      grid.appendChild(vCard);
+    });
+
+    const incPM = document.getElementById('incPM');
+    const incREP = document.getElementById('incREP');
+    const incERSA = document.getElementById('incERSA');
+
+    // Link PM and Repair Checkboxes
+    incPM.addEventListener('change', (e) => {
+      incREP.checked = e.target.checked;
+      calculate();
+    });
+    incREP.addEventListener('change', (e) => {
+      incPM.checked = e.target.checked;
+      calculate();
+    });
+    incERSA.addEventListener('change', calculate);
+  }
+
+  window.stepVal = function(c, dir) {
+    let el = document.getElementById(`inp_${c}_count`);
+    let val = Math.max(0, parseInt(el.value) + dir);
+    el.value = val;
+    state[c].count = val;
+    calculate();
+  };
+  window.updateVal = function(c, k, val) {
+    state[c][k] = Math.max(0, Number(val) || 0);
+    calculate();
+  };
+
+  function calculate() {
+    const active = {
+      ersa: document.getElementById('incERSA').checked,
+      pm: document.getElementById('incPM').checked,
+      rep: document.getElementById('incREP').checked
+    };
+
+    let metrics = {
+      ersa: { ev: 0, sp: 0 }, pm: { ev: 0, sp: 0 }, rep: { ev: 0, sp: 0 },
+      total: { ev: 0, sp: 0, u: 0 }
+    };
+    
+    let eligibleDistEvents = 0;
+    let mheCount = state['MHE'].count;
+
+    CLASSES.forEach(c => {
+      let u = state[c].count;
+      metrics.total.u += u;
+      
+      let evE=0, spE=0, evP=0, spP=0, evR=0, spR=0;
+      if(active.ersa) { evE = u * state[c].ersa_r; spE = evE * state[c].c_ersa; }
+      if(active.pm)   { evP = u * state[c].pm_r;   spP = evP * state[c].c_pm; }
+      if(active.rep)  { evR = u * state[c].rep_r;  spR = evR * state[c].c_rep; }
+
+      metrics.ersa.ev += evE; metrics.ersa.sp += spE;
+      metrics.pm.ev += evP;   metrics.pm.sp += spP;
+      metrics.rep.ev += evR;  metrics.rep.sp += spR;
+
+      let cEv = evE + evP + evR;
+      if(c !== 'REEFER' && c !== 'MHE') { eligibleDistEvents += cEv; }
+    });
+
+    metrics.total.ev = metrics.ersa.ev + metrics.pm.ev + metrics.rep.ev;
+    metrics.total.sp = metrics.ersa.sp + metrics.pm.sp + metrics.rep.sp;
+
+    // Service-level HC Logic (Rounding down unless fraction > 0.89)
+    let getHc = (ev) => {
+      let raw = ev / CONST.hc_eff;
+      let hc = Math.floor(raw);
+      if ((raw - hc) > 0.89) hc += 1;
+      return hc;
+    };
+
+    let hc_ersa = getHc(metrics.ersa.ev);
+    let hc_pm = getHc(metrics.pm.ev);
+    let hc_rep = getHc(metrics.rep.ev);
+    
+    let totHc = hc_ersa + hc_pm + hc_rep;
+    let totHcCost = totHc * CONST.hc_cost;
+
+    document.getElementById('heroUnits').textContent = metrics.total.u.toLocaleString();
+
+    // Update Service Cards (Events rounded down)
+    ['ersa', 'pm', 'rep'].forEach(srv => {
+      const card = document.getElementById(`card${srv.toUpperCase()}`);
+      card.style.opacity = active[srv] ? '1' : '0.4';
+      
+      let srvHc = getHc(metrics[srv].ev);
+      document.getElementById(`${srv}Events`).textContent = Math.floor(metrics[srv].ev).toLocaleString();
+      document.getElementById(`${srv}Fte`).textContent = srvHc;
+      document.getElementById(`${srv}Spend`).textContent = fC0.format(metrics[srv].sp);
+    });
+
+    let stdRev = (metrics.total.ev * CONST.fee) + (metrics.total.sp * (1 + CONST.markup_std));
+    let grossCost = metrics.total.sp + totHcCost;
+    let stdMargin = stdRev > 0 ? (stdRev - grossCost) / stdRev : 0;
+
+    let target = 0;
+    if (stdRev < 1000000) target = 0.25;
+    else if (stdRev < 2000000) target = 0.20;
+    else target = 0.15;
+
+    document.getElementById('heroTargetMargin').textContent = (target * 100).toFixed(0) + '%';
+    
+    const fbVendor = document.getElementById('fbVendorCost');
+    const fbTotalRev = document.getElementById('fbTotalRev');
+    const fbFeeRev = document.getElementById('fbFeeRev');
+    const fbPvpmRev = document.getElementById('fbPvpmRev');
+    const fbMarkupRev = document.getElementById('fbMarkupRev');
+    const fbMarkupRevLabel = document.getElementById('fbMarkupRevLabel');
+    const fbHcCount = document.getElementById('fbHcCount');
+    const fbHcCost = document.getElementById('fbHcCost');
+    const fbMarginDollar = document.getElementById('fbMarginDollar');
+    
+    const heroRev = document.getElementById('heroRev');
+    const heroProjMarg = document.getElementById('heroProjMargin');
+    const heroMargDol = document.getElementById('heroMarginDollar');
+    
+    const strategyBadge = document.getElementById('modelStrategyLabel');
+
+    const hiddenObj = {};
+
+    fbVendor.textContent = fC0.format(metrics.total.sp);
+    fbHcCount.textContent = totHc;
+    fbHcCost.textContent = "-" + fC0.format(totHcCost);
+
+    if (metrics.total.u === 0) {
+      strategyBadge.textContent = "MODEL: EVALUATING...";
+      strategyBadge.style.background = "#f1f5f9";
+      strategyBadge.style.color = "var(--amerit-dark)";
+      
+      heroRev.textContent = "$0";
+      heroProjMarg.textContent = "0%";
+      heroProjMarg.style.color = "var(--amerit-yellow)";
+      heroMargDol.textContent = "$0";
+
+      fbTotalRev.textContent = "$0";
+      fbFeeRev.textContent = "$0";
+      fbPvpmRev.textContent = "$0";
+      fbMarkupRev.textContent = "$0";
+      fbMarginDollar.textContent = "$0";
+      fbMarginDollar.style.color = "var(--text-main)";
+
+      document.getElementById('hidden-pvpm-data').textContent = "{}";
+      return;
+    }
+
+    if (stdMargin >= target) {
+      // STANDARD HYBRID MODEL
+      strategyBadge.textContent = "MODEL: HYBRID ($95 FEE & 15% MARKUP)";
+      strategyBadge.style.background = "var(--good)";
+      strategyBadge.style.color = "#fff";
+      
+      let marginDollar = stdRev - grossCost;
+
+      heroRev.textContent = fC0.format(stdRev);
+      heroProjMarg.textContent = (stdMargin * 100).toFixed(1) + '%';
+      heroProjMarg.style.color = "#fff";
+      heroMargDol.textContent = fC0.format(marginDollar);
+
+      fbTotalRev.textContent = fC0.format(stdRev);
+      fbFeeRev.textContent = fC0.format(metrics.total.ev * CONST.fee);
+      fbPvpmRev.textContent = "$0 (Waived)";
+      
+      fbMarkupRevLabel.textContent = "+ Vendor Markup Revenue (15%)";
+      fbMarkupRev.textContent = fC0.format(metrics.total.sp * CONST.markup_std);
+      
+      fbMarginDollar.textContent = fC0.format(marginDollar);
+      fbMarginDollar.style.color = marginDollar >= 0 ? "var(--good)" : "var(--danger)";
+      
+      CLASSES.forEach(c => hiddenObj[c] = 0);
+
+    } else {
+      // PVPM MODEL (Shift to 10% markup)
+      let targetRev = grossCost / (1 - target);
+      let markupRev_pvpm = metrics.total.sp * CONST.markup_pvpm;
+      
+      // Calculate revenue required from PVPM to hit target
+      let pvpmRevNeeded = targetRev - metrics.total.sp - markupRev_pvpm;
+      let marginDollar = targetRev - grossCost;
+
+      // Distribute PVPM
+      let mhePvpmAnnualRev = mheCount * CONST.mhe_pvpm * 12;
+      let remainingPvpmAnnual = Math.max(0, pvpmRevNeeded - mhePvpmAnnualRev);
+
+      CLASSES.forEach(c => {
+        let u = state[c].count;
+        if(c === 'REEFER') {
+          hiddenObj[c] = 0.00;
+        } else if (c === 'MHE') {
+          hiddenObj[c] = (u > 0) ? CONST.mhe_pvpm : 0.00;
+        } else {
+          if (u > 0 && eligibleDistEvents > 0) {
+            let classEv = (active.ersa ? u * state[c].ersa_r : 0) + 
+                          (active.pm ? u * state[c].pm_r : 0) + 
+                          (active.rep ? u * state[c].rep_r : 0);
+            
+            let classShareRev = remainingPvpmAnnual * (classEv / eligibleDistEvents);
+            hiddenObj[c] = classShareRev / (u * 12);
+          } else {
+            hiddenObj[c] = 0.00;
+          }
+        }
+      });
+
+      // Calculate blended average PVPM for display (excl. Reefers)
+      let unitsExclReefer = metrics.total.u - state['REEFER'].count;
+      let blendedPvpm = unitsExclReefer > 0 ? (pvpmRevNeeded / (unitsExclReefer * 12)) : 0;
+
+      strategyBadge.textContent = `MODEL: PVPM (${fC2.format(blendedPvpm)} / UNIT)`;
+      strategyBadge.style.background = "var(--amerit-yellow)";
+      strategyBadge.style.color = "var(--amerit-dark)";
+
+      heroRev.textContent = fC0.format(targetRev);
+      heroProjMarg.textContent = (target * 100).toFixed(1) + '%';
+      heroProjMarg.style.color = "var(--amerit-yellow)";
+      heroMargDol.textContent = fC0.format(marginDollar);
+
+      fbTotalRev.textContent = fC0.format(targetRev);
+      fbFeeRev.textContent = "$0 (Waived)";
+      fbPvpmRev.textContent = fC0.format(pvpmRevNeeded);
+      
+      fbMarkupRevLabel.textContent = "+ Vendor Markup Revenue (10%)";
+      fbMarkupRev.textContent = fC0.format(markupRev_pvpm);
+      
+      fbMarginDollar.textContent = fC0.format(marginDollar);
+      fbMarginDollar.style.color = "var(--amerit-yellow)";
+    }
+
+    document.getElementById('hidden-pvpm-data').textContent = JSON.stringify(hiddenObj, null, 2);
+  }
+
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    state = JSON.parse(JSON.stringify(DEFAULTS));
+    initUI();
+    calculate();
+  });
+
+  initUI();
+  calculate();
+</script>
+</body>
+</html>
