@@ -34,149 +34,60 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Remove native browser arrows from number inputs for perfect centering */
+    /* Remove native browser arrows from number inputs */
     input[type=number]::-webkit-inner-spin-button, 
-    input[type=number]::-webkit-outer-spin-button { 
-      -webkit-appearance: none; 
-      margin: 0; 
-    }
-    input[type=number] {
-      -moz-appearance: textfield;
-    }
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
 
-    /* Header */
+    /* Header & Fun Animation */
     .header {
-      background-color: #ffffff;
-      padding: 24px 40px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 16px;
-      border-bottom: 4px solid var(--amerit-yellow);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      background-color: #ffffff; padding: 24px 40px; display: flex; justify-content: center; align-items: center; gap: 16px;
+      border-bottom: 4px solid var(--amerit-yellow); box-shadow: 0 4px 12px rgba(0,0,0,0.03);
     }
-    .header svg {
-      width: 40px;
-      height: 40px;
-      color: var(--amerit-dark);
+    .header h1 { color: var(--amerit-dark); font-size: 32px; font-weight: 900; letter-spacing: -0.5px; display: flex; align-items: center; }
+    .plus { color: var(--amerit-yellow); font-size: 44px; font-weight: 900; line-height: 0; vertical-align: -3px; margin-left: 2px; }
+    
+    .calc-icon-wrapper { position: relative; width: 44px; height: 44px; }
+    .calc-icon-wrapper svg { width: 100%; height: 100%; color: var(--amerit-dark); position: relative; z-index: 2; }
+    #math-clouds { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+    .math-particle {
+      position: absolute; bottom: 20px; left: 10px; font-size: 14px; font-weight: 900; color: var(--amerit-yellow);
+      animation: float-up linear forwards;
     }
-    .header h1 {
-      color: var(--amerit-dark);
-      font-size: 32px;
-      font-weight: 900;
-      letter-spacing: -0.5px;
-      display: flex;
-      align-items: center;
-    }
-    .plus {
-      color: var(--amerit-yellow);
-      font-size: 44px;
-      font-weight: 900;
-      line-height: 0;
-      vertical-align: -3px;
-      margin-left: 2px;
+    @keyframes float-up {
+      0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 0; }
+      20% { opacity: 1; transform: scale(1.2) rotate(10deg); }
+      100% { transform: translateY(-70px) scale(1.5) rotate(-20deg); opacity: 0; }
     }
 
     /* Layout Containers */
-    .hero-container {
-      max-width: 1700px;
-      margin: 32px auto 0;
-      padding: 0 32px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-    }
-    
-    .container {
-      max-width: 1700px;
-      margin: 24px auto;
-      padding: 0 32px;
-      display: grid;
-      /* Balanced the columns to give the right side more space while keeping the left side wide enough for 3 squares */
-      grid-template-columns: 1.15fr 1fr;
-      gap: 32px;
-      align-items: start;
-    }
+    .hero-container { max-width: 1700px; margin: 32px auto 0; padding: 0 32px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .container { max-width: 1700px; margin: 24px auto; padding: 0 32px; display: grid; grid-template-columns: 1.15fr 1fr; gap: 32px; align-items: start; }
 
     /* Hero Cards */
     .hero-card {
-      background-color: var(--amerit-dark);
-      border-radius: var(--radius);
-      padding: 32px 24px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      box-shadow: 0 10px 30px rgba(18, 25, 38, 0.12);
-      position: relative;
-      overflow: hidden;
+      background-color: var(--amerit-dark); border-radius: var(--radius); padding: 32px 24px; text-align: center;
+      display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 10px 30px rgba(18, 25, 38, 0.12); position: relative; overflow: hidden;
     }
-    .hero-card::after {
-      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 6px;
-      background: var(--amerit-yellow); opacity: 0.15;
-    }
-    
-    .hero-val {
-      font-size: 60px;
-      font-weight: 900;
-      line-height: 1;
-      margin-bottom: 12px;
-      letter-spacing: -1px;
-    }
+    .hero-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 6px; background: var(--amerit-yellow); opacity: 0.15; }
+    .hero-val { font-size: 60px; font-weight: 900; line-height: 1; margin-bottom: 12px; letter-spacing: -1px; }
     .hero-val.yellow { color: var(--amerit-yellow); }
     .hero-val.white { color: #ffffff; }
-    
-    .hero-label {
-      font-size: 14px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: #94a3b8;
-    }
+    .hero-label { font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: #94a3b8; }
     .hero-label .highlight { color: #fff; font-weight: 900; font-size: 16px; margin-left: 6px; }
 
     /* Custom 3rd Tile Structure */
-    .tile-3-top {
-      font-size: 14px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;
-    }
+    .tile-3-top { font-size: 14px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
     .tile-3-top span { color: var(--amerit-yellow); font-size: 18px; font-weight: 900; margin-left: 6px; }
-    .tile-3-mid {
-      font-size: 60px; font-weight: 900; color: var(--amerit-yellow); margin-bottom: 12px; line-height: 1; letter-spacing: -1px;
-    }
-    .tile-3-bot {
-      font-size: 14px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;
-    }
+    .tile-3-mid { font-size: 60px; font-weight: 900; color: var(--amerit-yellow); margin-bottom: 12px; line-height: 1; letter-spacing: -1px; }
+    .tile-3-bot { font-size: 14px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
 
     /* Standard Cards */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-      width: 100%;
-    }
-    .card-title {
-      font-size: 18px;
-      font-weight: 900;
-      margin-bottom: 24px;
-      color: var(--amerit-dark);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); width: 100%; }
+    .card-title { font-size: 18px; font-weight: 900; margin-bottom: 24px; color: var(--amerit-dark); text-transform: uppercase; letter-spacing: 1px; display: flex; justify-content: space-between; align-items: center; }
 
     /* Interactive Button Toggles */
-    .toggle-group {
-      display: flex;
-      width: 100%;
-      max-width: 800px;
-      gap: 16px;
-      margin-bottom: 16px;
-    }
+    .toggle-group { display: flex; width: 100%; max-width: 800px; gap: 16px; margin-bottom: 16px; }
     .toggle-btn { flex: 1; position: relative; }
     .toggle-btn input { position: absolute; opacity: 0; cursor: pointer; }
     .toggle-label {
@@ -184,81 +95,44 @@
       padding: 16px 0; border-radius: 8px; font-size: 16px; font-weight: 900; text-transform: uppercase; cursor: pointer;
       transition: all 0.2s ease; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
     }
-    .toggle-btn input:checked + .toggle-label {
-      background: var(--amerit-yellow); color: var(--amerit-dark); box-shadow: 0 4px 12px rgba(253, 185, 19, 0.4);
-    }
+    .toggle-btn input:checked + .toggle-label { background: var(--amerit-yellow); color: var(--amerit-dark); box-shadow: 0 4px 12px rgba(253, 185, 19, 0.4); }
     .toggle-btn:hover .toggle-label { filter: brightness(0.95); }
     .toggle-btn input:checked:hover + .toggle-label { filter: brightness(1.05); }
+    .checkbox-subtext { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border); font-weight: 600; text-align: center; }
 
-    .checkbox-subtext {
-      font-size: 14px; color: var(--text-muted); margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border); font-weight: 600; text-align: center;
-    }
-
-    /* Interactive Vehicle Grid (Fixed to 3 Columns) */
-    .vehicle-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-    }
-    .v-card {
-      background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 20px; transition: all 0.2s;
-    }
+    /* Interactive Vehicle Grid */
+    .vehicle-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .v-card { background: #f8fafc; border: 1px solid var(--border); border-radius: 12px; padding: 20px; transition: all 0.2s; }
     .v-card:hover { border-color: #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-    
     .v-header { font-size: 18px; font-weight: 900; color: var(--amerit-dark); margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
     
     /* Stepper Input */
-    .stepper {
-      display: flex; align-items: center; background: #ffffff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 16px;
-    }
-    .step-btn {
-      background: #f1f5f9; border: none; color: var(--amerit-dark); font-size: 24px; font-weight: 600; width: 44px; height: 44px; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center;
-    }
+    .stepper { display: flex; align-items: center; background: #ffffff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
+    .step-btn { background: #f1f5f9; border: none; color: var(--amerit-dark); font-size: 24px; font-weight: 600; width: 44px; height: 44px; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; }
     .step-btn:hover { background: #e2e8f0; }
-    .stepper input {
-      flex: 1; width: 100%; border: none; text-align: center; font-size: 20px; font-weight: 900; color: var(--amerit-dark); outline: none;
-    }
+    .stepper input { flex: 1; width: 100%; border: none; text-align: center; font-size: 20px; font-weight: 900; color: var(--amerit-dark); outline: none; }
 
     /* Rates Grid */
     .v-rates { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px;}
     .v-rate-col label { display: block; font-size: 12px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; text-align: center;}
-    .v-rate-col input {
-      width: 100%; padding: 10px 6px; border: 1px solid var(--border); border-radius: 8px;
-      text-align: center; font-size: 14px; font-weight: 800; outline: none; transition: all 0.2s;
-    }
+    .v-rate-col input { width: 100%; padding: 10px 6px; border: 1px solid var(--border); border-radius: 8px; text-align: center; font-size: 14px; font-weight: 800; outline: none; transition: all 0.2s; }
     .v-rate-col input:focus { border-color: var(--amerit-yellow); box-shadow: 0 0 0 2px rgba(253, 185, 19, 0.15); }
 
     /* Right Column Wrapper */
-    .right-col {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
+    .right-col { display: flex; flex-direction: column; gap: 24px; }
 
     /* Service Grid */
-    .service-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-    }
-    .service-card {
-      background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 24px; position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-    }
-    /* Uniform Yellow Border */
+    .service-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .service-card { background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 24px; position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
     .service-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--amerit-yellow); }
-    
     .sc-title { font-size: 18px; font-weight: 900; margin-bottom: 24px; color: var(--amerit-dark); }
     .sc-stat { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; }
     .sc-stat span:first-child { color: var(--text-muted); font-weight: 700;}
     .sc-stat span:last-child { font-weight: 900; color: var(--amerit-dark);}
 
     /* Financial Breakdown Table */
-    .finance-breakdown {
-      background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-    }
-    .fb-header {
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 2px solid var(--border); padding-bottom: 16px;
-    }
+    .finance-breakdown { background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
+    .fb-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 2px solid var(--border); padding-bottom: 16px; }
     .fb-header-title { font-size: 18px; font-weight: 900; color: var(--amerit-dark); text-transform: uppercase; letter-spacing: 0.5px; }
     .model-badge { font-size: 14px; font-weight: 900; padding: 10px 18px; border-radius: 8px; transition: all 0.3s; }
     
@@ -267,12 +141,18 @@
     .fb-row.bold { font-weight: 900; color: var(--amerit-dark); border-top: 1px solid var(--border); margin-top: 14px; padding-top: 18px; }
     .fb-row.highlight { font-size: 22px; color: var(--amerit-dark); border-top: 2px solid var(--amerit-dark); margin-top: 18px; padding-top: 24px; }
 
-    button.reset-btn {
-      background: #f1f5f9; border: none; color: var(--text-muted); padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; text-transform: uppercase; transition: all 0.2s;
+    /* Recommendation Box */
+    .recommendation {
+      background: var(--amerit-dark); border-radius: 12px; padding: 36px; color: #fff; position: relative; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 4px 20px rgba(0,0,0,0.03);
     }
-    button.reset-btn:hover { background: #e2e8f0; color: var(--amerit-dark); }
+    .recommendation::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 8px; background: var(--amerit-yellow); border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+    .rec-title { color: var(--amerit-yellow); font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 16px; }
+    .rec-decision { font-size: 32px; font-weight: 900; margin-bottom: 16px; line-height: 1.2;}
+    .rec-sub { font-size: 16px; color: #cbd5e1; line-height: 1.6; font-weight: 500; }
+    .rec-result { margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); font-weight: 900; color: #fff; font-size: 20px;}
 
-    .hidden-code { display: none; }
+    button.reset-btn { background: #f1f5f9; border: none; color: var(--text-muted); padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; text-transform: uppercase; transition: all 0.2s; }
+    button.reset-btn:hover { background: #e2e8f0; color: var(--amerit-dark); }
 
     @media (max-width: 1400px) {
       .container { grid-template-columns: 1fr; }
@@ -283,9 +163,12 @@
 <body>
 
 <div class="header">
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-    <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-  </svg>
+  <div class="calc-icon-wrapper">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+    </svg>
+    <div id="math-clouds"></div>
+  </div>
   <h1>Calculate<span class="plus">+</span></h1>
 </div>
 
@@ -367,19 +250,38 @@
       <div class="fb-row bold"><span>Total Revenue Generated</span><span id="fbTotalRev">$0</span></div>
       <div class="fb-row sub"><span>+ Handling Fee Revenue</span><span id="fbFeeRev">$0</span></div>
       <div class="fb-row sub"><span>+ Monthly PVPM Revenue</span><span id="fbPvpmRev">$0</span></div>
-      <div class="fb-row sub"><span id="fbMarkupRevLabel">+ Vendor Markup Revenue (15%)</span><span id="fbMarkupRev">$0</span></div>
+      <div class="fb-row sub"><span id="fbMarkupRevLabel">+ Vendor Invoice Markup (15%)</span><span id="fbMarkupRev">$0</span></div>
       
       <div class="fb-row bold" style="color: var(--danger);"><span>Total Headcount Cost (<span id="fbHcCount">0</span> @ $78,000)</span><span id="fbHcCost">-$0</span></div>
       
       <div class="fb-row highlight bold"><span>Total Margin ($)</span><span id="fbMarginDollar">$0</span></div>
     </div>
 
+    <div class="recommendation">
+      <div class="rec-title">Execution Plan</div>
+      <div class="rec-decision" id="recDecision">Evaluating...</div>
+      <div class="rec-sub" id="recSub">Provide fleet data to generate execution plan.</div>
+      <div class="rec-result" id="recResult">-</div>
+    </div>
+
   </div>
 </div>
 
-<div id="hidden-pvpm-data" class="hidden-code"></div>
-
 <script>
+  // Animation Logic for Header
+  function spawnCloud() {
+    const symbols = ['+', '-', '×', '÷', '%', '$'];
+    const cloud = document.createElement('div');
+    cloud.className = 'math-particle';
+    cloud.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+    cloud.style.left = (Math.random() * 24 + 4) + 'px';
+    cloud.style.animationDuration = (1.5 + Math.random() * 1.5) + 's';
+    document.getElementById('math-clouds').appendChild(cloud);
+    setTimeout(() => cloud.remove(), 3000);
+  }
+  setInterval(spawnCloud, 600);
+
+  // App Logic
   const CLASSES = ['HD', 'MD', 'LD', 'TRAILER', 'REEFER', 'MHE', 'OTHER_1', 'OTHER_2'];
   const DEFAULTS = {
     HD: { count: 0, ersa_r: 1.2, pm_r: 2.0, rep_r: 2.0, c_ersa: 800, c_pm: 600, c_rep: 900 },
@@ -455,15 +357,8 @@
     const incREP = document.getElementById('incREP');
     const incERSA = document.getElementById('incERSA');
 
-    // Link PM and Repair Checkboxes
-    incPM.addEventListener('change', (e) => {
-      incREP.checked = e.target.checked;
-      calculate();
-    });
-    incREP.addEventListener('change', (e) => {
-      incPM.checked = e.target.checked;
-      calculate();
-    });
+    incPM.addEventListener('change', (e) => { incREP.checked = e.target.checked; calculate(); });
+    incREP.addEventListener('change', (e) => { incPM.checked = e.target.checked; calculate(); });
     incERSA.addEventListener('change', calculate);
   }
 
@@ -531,7 +426,6 @@
 
     document.getElementById('heroUnits').textContent = metrics.total.u.toLocaleString();
 
-    // Update Service Cards (Events rounded down)
     ['ersa', 'pm', 'rep'].forEach(srv => {
       const card = document.getElementById(`card${srv.toUpperCase()}`);
       card.style.opacity = active[srv] ? '1' : '0.4';
@@ -542,6 +436,7 @@
       document.getElementById(`${srv}Spend`).textContent = fC0.format(metrics[srv].sp);
     });
 
+    // Baseline Revenue = (Handling Fee) + (Vendor Spend * Markup)
     let stdRev = (metrics.total.ev * CONST.fee) + (metrics.total.sp * (1 + CONST.markup_std));
     let grossCost = metrics.total.sp + totHcCost;
     let stdMargin = stdRev > 0 ? (stdRev - grossCost) / stdRev : 0;
@@ -568,8 +463,9 @@
     const heroMargDol = document.getElementById('heroMarginDollar');
     
     const strategyBadge = document.getElementById('modelStrategyLabel');
-
-    const hiddenObj = {};
+    const dTitle = document.getElementById('recDecision');
+    const dSub = document.getElementById('recSub');
+    const dRes = document.getElementById('recResult');
 
     fbVendor.textContent = fC0.format(metrics.total.sp);
     fbHcCount.textContent = totHc;
@@ -592,7 +488,9 @@
       fbMarginDollar.textContent = "$0";
       fbMarginDollar.style.color = "var(--text-main)";
 
-      document.getElementById('hidden-pvpm-data').textContent = "{}";
+      dTitle.textContent = "Awaiting Setup";
+      dSub.textContent = "Add units to calculate pricing and strategy.";
+      dRes.textContent = "-";
       return;
     }
 
@@ -613,48 +511,27 @@
       fbFeeRev.textContent = fC0.format(metrics.total.ev * CONST.fee);
       fbPvpmRev.textContent = "$0 (Waived)";
       
-      fbMarkupRevLabel.textContent = "+ Vendor Markup Revenue (15%)";
+      fbMarkupRevLabel.textContent = "+ Vendor Invoice Markup (15%)";
       fbMarkupRev.textContent = fC0.format(metrics.total.sp * CONST.markup_std);
       
       fbMarginDollar.textContent = fC0.format(marginDollar);
       fbMarginDollar.style.color = marginDollar >= 0 ? "var(--good)" : "var(--danger)";
       
-      CLASSES.forEach(c => hiddenObj[c] = 0);
+      dTitle.textContent = "Standard Baseline";
+      dSub.textContent = `The base structure achieves a ${target*100}% FOP. Maintain standard handling fees.`;
+      dRes.textContent = `Result = $95 Handling Fee + 15% Vendor Markup`;
 
     } else {
       // PVPM MODEL (Shift to 10% markup)
       let targetRev = grossCost / (1 - target);
       let markupRev_pvpm = metrics.total.sp * CONST.markup_pvpm;
       
-      // Calculate revenue required from PVPM to hit target
       let pvpmRevNeeded = targetRev - metrics.total.sp - markupRev_pvpm;
       let marginDollar = targetRev - grossCost;
 
-      // Distribute PVPM
       let mhePvpmAnnualRev = mheCount * CONST.mhe_pvpm * 12;
       let remainingPvpmAnnual = Math.max(0, pvpmRevNeeded - mhePvpmAnnualRev);
 
-      CLASSES.forEach(c => {
-        let u = state[c].count;
-        if(c === 'REEFER') {
-          hiddenObj[c] = 0.00;
-        } else if (c === 'MHE') {
-          hiddenObj[c] = (u > 0) ? CONST.mhe_pvpm : 0.00;
-        } else {
-          if (u > 0 && eligibleDistEvents > 0) {
-            let classEv = (active.ersa ? u * state[c].ersa_r : 0) + 
-                          (active.pm ? u * state[c].pm_r : 0) + 
-                          (active.rep ? u * state[c].rep_r : 0);
-            
-            let classShareRev = remainingPvpmAnnual * (classEv / eligibleDistEvents);
-            hiddenObj[c] = classShareRev / (u * 12);
-          } else {
-            hiddenObj[c] = 0.00;
-          }
-        }
-      });
-
-      // Calculate blended average PVPM for display (excl. Reefers)
       let unitsExclReefer = metrics.total.u - state['REEFER'].count;
       let blendedPvpm = unitsExclReefer > 0 ? (pvpmRevNeeded / (unitsExclReefer * 12)) : 0;
 
@@ -671,14 +548,16 @@
       fbFeeRev.textContent = "$0 (Waived)";
       fbPvpmRev.textContent = fC0.format(pvpmRevNeeded);
       
-      fbMarkupRevLabel.textContent = "+ Vendor Markup Revenue (10%)";
+      fbMarkupRevLabel.textContent = "+ Vendor Invoice Markup (10%)";
       fbMarkupRev.textContent = fC0.format(markupRev_pvpm);
       
       fbMarginDollar.textContent = fC0.format(marginDollar);
       fbMarginDollar.style.color = "var(--amerit-yellow)";
-    }
 
-    document.getElementById('hidden-pvpm-data').textContent = JSON.stringify(hiddenObj, null, 2);
+      dTitle.textContent = "PVPM Model";
+      dSub.textContent = `Waive the handling fee. Charge the calculated PVPM fee + 10% vendor invoice markup to hit target.`;
+      dRes.textContent = `Result = ${fC2.format(blendedPvpm)} Avg PVPM + 10% Vendor Markup (No Handling Fee)`;
+    }
   }
 
   document.getElementById('resetBtn').addEventListener('click', () => {
