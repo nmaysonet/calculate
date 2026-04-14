@@ -301,10 +301,9 @@
   </div>
 </div>
 
-<script>
-  // Global variable to store current calculation state for export
-  window._exportData = null;
+<div id="hidden-pvpm-data" class="hidden-code"></div>
 
+<script>
   // Animation Logic for Header
   function spawnCloud() {
     const symbols = ['+', '-', '×', '÷', '%', '$'];
@@ -429,6 +428,7 @@
     metrics.total.ev = metrics.ersa.ev + metrics.pm.ev + metrics.rep.ev;
     metrics.total.sp = metrics.ersa.sp + metrics.pm.sp + metrics.rep.sp;
 
+    // Standby Capacity Rule
     let getHc = (ev) => {
       let raw = ev / CONST.hc_eff;
       let hc = Math.floor(raw);
@@ -441,6 +441,16 @@
     let hc_rep = getHc(metrics.rep.ev);
     
     let totHc = hc_ersa + hc_pm + hc_rep;
+    
+    // Standby capacity: minimum 1 HC if there is any volume.
+    // Protects against fleets so small that rounding drops headcount to 0.
+    if (metrics.total.ev > 0 && totHc === 0) {
+      totHc = 1;
+      if (metrics.rep.ev >= metrics.pm.ev && metrics.rep.ev >= metrics.ersa.ev) hc_rep = 1;
+      else if (metrics.pm.ev >= metrics.rep.ev && metrics.pm.ev >= metrics.ersa.ev) hc_pm = 1;
+      else hc_ersa = 1;
+    }
+
     let totHcCost = totHc * CONST.hc_cost;
 
     document.getElementById('heroUnits').textContent = metrics.total.u.toLocaleString();
@@ -450,7 +460,7 @@
       const card = document.getElementById(`card${srv.toUpperCase()}`);
       card.style.opacity = active[srv] ? '1' : '0.4';
       
-      let srvHc = getHc(metrics[srv].ev);
+      let srvHc = srv === 'ersa' ? hc_ersa : (srv === 'pm' ? hc_pm : hc_rep);
       document.getElementById(`${srv}Events`).textContent = Math.floor(metrics[srv].ev).toLocaleString();
       document.getElementById(`${srv}Fte`).textContent = srvHc;
       document.getElementById(`${srv}Spend`).textContent = fC0.format(metrics[srv].sp);
