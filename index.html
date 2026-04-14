@@ -21,6 +21,7 @@
       --good: #10b981;
       --warn: #f59e0b;
       --danger: #ef4444;
+      --navy: #1e3a8a; /* Navy Blue for Bundled */
       --radius: 16px;
     }
     
@@ -34,10 +35,15 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Remove native browser arrows from number inputs */
+    /* Remove native browser arrows from number inputs for perfect centering */
     input[type=number]::-webkit-inner-spin-button, 
-    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-    input[type=number] { -moz-appearance: textfield; }
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
 
     /* Header & Fun Animation */
     .header {
@@ -86,8 +92,28 @@
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); width: 100%; }
     .card-title { font-size: 18px; font-weight: 900; margin-bottom: 24px; color: var(--amerit-dark); text-transform: uppercase; letter-spacing: 1px; display: flex; justify-content: space-between; align-items: center; }
 
+    /* Header Actions (Reset & Bundled) */
+    .header-actions { display: flex; gap: 12px; align-items: center; }
+    
+    .bundled-btn-container { cursor: pointer; display: inline-block; position: relative; }
+    .bundled-btn-container input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .bundled-btn {
+      background: #f1f5f9; color: var(--text-muted); padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 800;
+      text-transform: uppercase; transition: all 0.2s; display: flex; align-items: center; gap: 8px;
+    }
+    .bundled-btn svg { width: 16px; height: 16px; }
+    .bundled-btn-container:hover .bundled-btn { background: #e2e8f0; color: var(--amerit-dark); }
+    .bundled-btn-container input:checked + .bundled-btn {
+      background: var(--navy); color: #ffffff; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+    }
+
+    button.reset-btn { 
+      background: var(--good); border: none; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; text-transform: uppercase; transition: all 0.2s; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2); 
+    }
+    button.reset-btn:hover { background: #059669; box-shadow: 0 4px 8px rgba(16, 185, 129, 0.4); }
+
     /* Interactive Button Toggles */
-    .toggle-group { display: flex; width: 100%; max-width: 800px; gap: 16px; margin-bottom: 16px; }
+    .toggle-group { display: flex; width: 100%; gap: 16px; margin-bottom: 16px; }
     .toggle-btn { flex: 1; position: relative; }
     .toggle-btn input { position: absolute; opacity: 0; cursor: pointer; }
     .toggle-label {
@@ -98,6 +124,7 @@
     .toggle-btn input:checked + .toggle-label { background: var(--amerit-yellow); color: var(--amerit-dark); box-shadow: 0 4px 12px rgba(253, 185, 19, 0.4); }
     .toggle-btn:hover .toggle-label { filter: brightness(0.95); }
     .toggle-btn input:checked:hover + .toggle-label { filter: brightness(1.05); }
+
     .checkbox-subtext { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border); font-weight: 600; text-align: center; }
 
     /* Interactive Vehicle Grid */
@@ -125,7 +152,7 @@
     .service-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
     .service-card { background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 24px; position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.03); }
     .service-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--amerit-yellow); }
-    .sc-title { font-size: 18px; font-weight: 900; margin-bottom: 24px; color: var(--amerit-dark); }
+    .sc-title { font-size: 18px; font-weight: 900; margin-bottom: 24px; color: var(--amerit-dark); text-transform: uppercase;}
     .sc-stat { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; }
     .sc-stat span:first-child { color: var(--text-muted); font-weight: 700;}
     .sc-stat span:last-child { font-weight: 900; color: var(--amerit-dark);}
@@ -151,8 +178,7 @@
     .rec-sub { font-size: 16px; color: #cbd5e1; line-height: 1.6; font-weight: 500; }
     .rec-result { margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); font-weight: 900; color: #fff; font-size: 20px;}
 
-    button.reset-btn { background: #f1f5f9; border: none; color: var(--text-muted); padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; text-transform: uppercase; transition: all 0.2s; }
-    button.reset-btn:hover { background: #e2e8f0; color: var(--amerit-dark); }
+    .hidden-code { display: none; }
 
     @media (max-width: 1400px) {
       .container { grid-template-columns: 1fr; }
@@ -193,7 +219,16 @@
   <div class="card">
     <div class="card-title">
       OPERATIONAL VARIABLES
-      <button class="reset-btn" id="resetBtn">Reset Default</button>
+      <div class="header-actions">
+        <label class="bundled-btn-container">
+          <input type="checkbox" id="isBundled">
+          <div class="bundled-btn">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+            Bundled
+          </div>
+        </label>
+        <button class="reset-btn" id="resetBtn">Reset Defaults</button>
+      </div>
     </div>
     
     <div class="toggle-group">
@@ -210,6 +245,7 @@
         <div class="toggle-label">Repair</div>
       </label>
     </div>
+    
     <div class="checkbox-subtext">Select all the services that apply to the prospective fleet. (PM and Repair are inherently linked).</div>
 
     <div class="vehicle-grid" id="vehicleGrid">
@@ -266,6 +302,8 @@
 
   </div>
 </div>
+
+<div id="hidden-pvpm-data" class="hidden-code"></div>
 
 <script>
   // Animation Logic for Header
@@ -356,10 +394,12 @@
     const incPM = document.getElementById('incPM');
     const incREP = document.getElementById('incREP');
     const incERSA = document.getElementById('incERSA');
+    const isBundled = document.getElementById('isBundled');
 
     incPM.addEventListener('change', (e) => { incREP.checked = e.target.checked; calculate(); });
     incREP.addEventListener('change', (e) => { incPM.checked = e.target.checked; calculate(); });
     incERSA.addEventListener('change', calculate);
+    isBundled.addEventListener('change', calculate);
   }
 
   window.stepVal = function(c, dir) {
@@ -380,6 +420,8 @@
       pm: document.getElementById('incPM').checked,
       rep: document.getElementById('incREP').checked
     };
+    
+    const isBundled = document.getElementById('isBundled').checked;
 
     let metrics = {
       ersa: { ev: 0, sp: 0 }, pm: { ev: 0, sp: 0 }, rep: { ev: 0, sp: 0 },
@@ -409,7 +451,6 @@
     metrics.total.ev = metrics.ersa.ev + metrics.pm.ev + metrics.rep.ev;
     metrics.total.sp = metrics.ersa.sp + metrics.pm.sp + metrics.rep.sp;
 
-    // Service-level HC Logic (Rounding down unless fraction > 0.89)
     let getHc = (ev) => {
       let raw = ev / CONST.hc_eff;
       let hc = Math.floor(raw);
@@ -436,7 +477,6 @@
       document.getElementById(`${srv}Spend`).textContent = fC0.format(metrics[srv].sp);
     });
 
-    // Baseline Revenue = (Handling Fee) + (Vendor Spend * Markup)
     let stdRev = (metrics.total.ev * CONST.fee) + (metrics.total.sp * (1 + CONST.markup_std));
     let grossCost = metrics.total.sp + totHcCost;
     let stdMargin = stdRev > 0 ? (stdRev - grossCost) / stdRev : 0;
@@ -494,8 +534,9 @@
       return;
     }
 
+    // Determine path: Natural Hybrid, Forced Bundled Hybrid, or PVPM
     if (stdMargin >= target) {
-      // STANDARD HYBRID MODEL
+      // STANDARD HYBRID MODEL (Natural Pass)
       strategyBadge.textContent = "MODEL: HYBRID ($95 FEE & 15% MARKUP)";
       strategyBadge.style.background = "var(--good)";
       strategyBadge.style.color = "#fff";
@@ -521,6 +562,33 @@
       dSub.textContent = `The base structure achieves a ${target*100}% FOP. Maintain standard handling fees.`;
       dRes.textContent = `Result = $95 Handling Fee + 15% Vendor Markup`;
 
+    } else if (isBundled) {
+      // FORCED BUNDLED HYBRID MODEL (Failing Target but Forced)
+      strategyBadge.textContent = "MODEL: BUNDLED HYBRID ($95 FEE & 15% MARKUP)";
+      strategyBadge.style.background = "var(--navy)";
+      strategyBadge.style.color = "#fff";
+      
+      let marginDollar = stdRev - grossCost;
+
+      heroRev.textContent = fC0.format(stdRev);
+      heroProjMarg.textContent = (stdMargin * 100).toFixed(1) + '%';
+      heroProjMarg.style.color = "var(--danger)"; // Show it's below target
+      heroMargDol.textContent = fC0.format(marginDollar);
+
+      fbTotalRev.textContent = fC0.format(stdRev);
+      fbFeeRev.textContent = fC0.format(metrics.total.ev * CONST.fee);
+      fbPvpmRev.textContent = "$0 (Waived)";
+      
+      fbMarkupRevLabel.textContent = "+ Vendor Invoice Markup (15%)";
+      fbMarkupRev.textContent = fC0.format(metrics.total.sp * CONST.markup_std);
+      
+      fbMarginDollar.textContent = fC0.format(marginDollar);
+      fbMarginDollar.style.color = "var(--danger)";
+      
+      dTitle.textContent = "Bundled Opportunity";
+      dSub.textContent = `Leveraging broader company services. Applying standard hybrid model despite missing the isolated ${target*100}% FOP target.`;
+      dRes.textContent = `Result = $95 Handling Fee + 15% Vendor Markup`;
+      
     } else {
       // PVPM MODEL (Shift to 10% markup)
       let targetRev = grossCost / (1 - target);
@@ -562,6 +630,7 @@
 
   document.getElementById('resetBtn').addEventListener('click', () => {
     state = JSON.parse(JSON.stringify(DEFAULTS));
+    document.getElementById('isBundled').checked = false; // Reset the bundled toggle as well
     initUI();
     calculate();
   });
