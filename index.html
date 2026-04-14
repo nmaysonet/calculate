@@ -127,11 +127,13 @@
     .v-card:hover { border-color: #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
     .v-header { font-size: 18px; font-weight: 900; color: var(--amerit-dark); margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
     
+    /* Stepper Input */
     .stepper { display: flex; align-items: center; background: #ffffff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
     .step-btn { background: #f1f5f9; border: none; color: var(--amerit-dark); font-size: 24px; font-weight: 600; width: 44px; height: 44px; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; }
     .step-btn:hover { background: #e2e8f0; }
     .stepper input { flex: 1; width: 100%; border: none; text-align: center; font-size: 20px; font-weight: 900; color: var(--amerit-dark); outline: none; }
 
+    /* Rates Grid */
     .v-rates { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px;}
     .v-rate-col label { display: block; font-size: 12px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; text-align: center;}
     .v-rate-col input { width: 100%; padding: 10px 6px; border: 1px solid var(--border); border-radius: 8px; text-align: center; font-size: 14px; font-weight: 800; outline: none; transition: all 0.2s; }
@@ -527,6 +529,17 @@
     let exportTotalRev = 0;
     let exportPvpmRev = 0;
 
+    // ACCOUNT MINIMUM LOGIC FOR PVPM
+    // Ensure small fleets always hit a reliable minimum revenue floor
+    let tierMinMonthly = 0;
+    let u = metrics.total.u;
+    if (u >= 1 && u <= 24) tierMinMonthly = 1200;
+    else if (u >= 25 && u <= 99) tierMinMonthly = 1800;
+    else if (u >= 100 && u <= 349) tierMinMonthly = 2500;
+    else if (u >= 350) tierMinMonthly = 4000;
+    
+    let minAnnualPvpm = tierMinMonthly * 12;
+
     // CORE LOGIC UPDATE: Revenue tier dictates the model strategy.
     if (isBundled) {
       // FORCED BUNDLED HYBRID MODEL
@@ -559,30 +572,39 @@
       let targetRev = grossCost / (1 - target);
       let markupRev_pvpm = metrics.total.sp * CONST.markup_pvpm;
       
-      let pvpmRevNeeded = targetRev - metrics.total.sp - markupRev_pvpm;
-      let marginDollar = targetRev - grossCost;
-      
-      exportTotalRev = targetRev;
-      exportPvpmRev = pvpmRevNeeded;
+      let mathPvpmRevNeeded = targetRev - metrics.total.sp - markupRev_pvpm;
+      let targetPvpmAnnual = Math.max(mathPvpmRevNeeded, minAnnualPvpm);
 
       let mhePvpmAnnualRev = mheCount * CONST.mhe_pvpm * 12;
-      let remainingPvpmAnnual = Math.max(0, pvpmRevNeeded - mhePvpmAnnualRev);
+      let unitsExclReeferMhe = u - state['REEFER'].count - mheCount;
+      
+      let basePvpm = 0;
+      if (unitsExclReeferMhe > 0) {
+          let remainingPvpmAnnual = Math.max(0, targetPvpmAnnual - mhePvpmAnnualRev);
+          basePvpm = Math.round(remainingPvpmAnnual / (unitsExclReeferMhe * 12));
+      }
 
-      let unitsExclReefer = metrics.total.u - state['REEFER'].count;
-      let blendedPvpm = unitsExclReefer > 0 ? (pvpmRevNeeded / (unitsExclReefer * 12)) : 0;
+      // Recalculate true financials based on the rounded/minimum PVPM
+      let finalPvpmRev = (basePvpm * unitsExclReeferMhe * 12) + mhePvpmAnnualRev;
+      let finalRev = metrics.total.sp + markupRev_pvpm + finalPvpmRev;
+      let marginDollar = finalRev - grossCost;
+      let finalMarginPct = finalRev > 0 ? (marginDollar / finalRev) : 0;
+      
+      exportTotalRev = finalRev;
+      exportPvpmRev = finalPvpmRev;
 
-      strategyBadge.textContent = `MODEL: PVPM (${fC2.format(blendedPvpm)} / UNIT)`;
+      strategyBadge.textContent = `MODEL: PVPM ($${basePvpm} / UNIT)`;
       strategyBadge.style.background = "var(--amerit-yellow)";
       strategyBadge.style.color = "var(--amerit-dark)";
 
-      heroRev.textContent = fC0.format(targetRev);
-      heroProjMarg.textContent = (target * 100).toFixed(1) + '%';
+      heroRev.textContent = fC0.format(finalRev);
+      heroProjMarg.textContent = (finalMarginPct * 100).toFixed(1) + '%';
       heroProjMarg.style.color = "var(--amerit-yellow)";
       heroMargDol.textContent = fC0.format(marginDollar);
 
-      fbTotalRev.textContent = fC0.format(targetRev);
+      fbTotalRev.textContent = fC0.format(finalRev);
       fbFeeRev.textContent = "$0 (Waived)";
-      fbPvpmRev.textContent = fC0.format(pvpmRevNeeded);
+      fbPvpmRev.textContent = fC0.format(finalPvpmRev);
       
       fbMarkupRevLabel.textContent = "+ Vendor Invoice Markup (10%)";
       fbMarkupRev.textContent = fC0.format(markupRev_pvpm);
