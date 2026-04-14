@@ -658,7 +658,7 @@
         let pvpmRev = data.isPvpm ? (data.pvpmRevTotal * ratio) : 0;
         let markupRev = srvData.sp * (data.isPvpm ? CONST.markup_pvpm : CONST.markup_std);
         
-        let totalRev = handlingFee + pvpmRev + markupRev;
+        let totalRev = srvData.sp + handlingFee + pvpmRev + markupRev;
         let totalCost = srvData.sp + allocatedHcCost;
         let margin = totalRev - totalCost;
 
