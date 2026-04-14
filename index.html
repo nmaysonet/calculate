@@ -9,6 +9,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+
   <style>
     :root {
       --amerit-yellow: #FDB913;
@@ -21,7 +23,7 @@
       --good: #10b981;
       --warn: #f59e0b;
       --danger: #ef4444;
-      --navy: #1e3a8a; /* Navy Blue for Bundled */
+      --navy: #1e3a8a;
       --radius: 16px;
     }
     
@@ -35,15 +37,9 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Remove native browser arrows from number inputs for perfect centering */
     input[type=number]::-webkit-inner-spin-button, 
-    input[type=number]::-webkit-outer-spin-button { 
-      -webkit-appearance: none; 
-      margin: 0; 
-    }
-    input[type=number] {
-      -moz-appearance: textfield;
-    }
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
 
     /* Header & Fun Animation */
     .header {
@@ -103,9 +99,7 @@
     }
     .bundled-btn svg { width: 16px; height: 16px; }
     .bundled-btn-container:hover .bundled-btn { background: #e2e8f0; color: var(--amerit-dark); }
-    .bundled-btn-container input:checked + .bundled-btn {
-      background: var(--navy); color: #ffffff; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
-    }
+    .bundled-btn-container input:checked + .bundled-btn { background: var(--navy); color: #ffffff; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3); }
 
     button.reset-btn { 
       background: var(--good); border: none; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; text-transform: uppercase; transition: all 0.2s; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2); 
@@ -133,13 +127,11 @@
     .v-card:hover { border-color: #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
     .v-header { font-size: 18px; font-weight: 900; color: var(--amerit-dark); margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
     
-    /* Stepper Input */
     .stepper { display: flex; align-items: center; background: #ffffff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
     .step-btn { background: #f1f5f9; border: none; color: var(--amerit-dark); font-size: 24px; font-weight: 600; width: 44px; height: 44px; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; }
     .step-btn:hover { background: #e2e8f0; }
     .stepper input { flex: 1; width: 100%; border: none; text-align: center; font-size: 20px; font-weight: 900; color: var(--amerit-dark); outline: none; }
 
-    /* Rates Grid */
     .v-rates { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px;}
     .v-rate-col label { display: block; font-size: 12px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; text-align: center;}
     .v-rate-col input { width: 100%; padding: 10px 6px; border: 1px solid var(--border); border-radius: 8px; text-align: center; font-size: 14px; font-weight: 800; outline: none; transition: all 0.2s; }
@@ -168,17 +160,18 @@
     .fb-row.bold { font-weight: 900; color: var(--amerit-dark); border-top: 1px solid var(--border); margin-top: 14px; padding-top: 18px; }
     .fb-row.highlight { font-size: 22px; color: var(--amerit-dark); border-top: 2px solid var(--amerit-dark); margin-top: 18px; padding-top: 24px; }
 
-    /* Recommendation Box */
-    .recommendation {
-      background: var(--amerit-dark); border-radius: 12px; padding: 36px; color: #fff; position: relative; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    /* Export Box */
+    .export-box {
+      background: var(--amerit-dark); border-radius: 12px; padding: 32px; color: #fff; position: relative; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 4px 20px rgba(0,0,0,0.03); text-align: center; align-items: center;
     }
-    .recommendation::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 8px; background: var(--amerit-yellow); border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
-    .rec-title { color: var(--amerit-yellow); font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 16px; }
-    .rec-decision { font-size: 32px; font-weight: 900; margin-bottom: 16px; line-height: 1.2;}
-    .rec-sub { font-size: 16px; color: #cbd5e1; line-height: 1.6; font-weight: 500; }
-    .rec-result { margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); font-weight: 900; color: #fff; font-size: 20px;}
-
-    .hidden-code { display: none; }
+    .export-box::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 8px; background: var(--amerit-yellow); border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+    .exp-title { color: var(--amerit-yellow); font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
+    .exp-sub { font-size: 15px; color: #cbd5e1; line-height: 1.6; font-weight: 500; margin-bottom: 24px; max-width: 400px;}
+    
+    button.export-btn {
+      background: var(--amerit-yellow); color: var(--amerit-dark); border: none; padding: 14px 28px; border-radius: 8px; font-size: 16px; font-weight: 900; cursor: pointer; text-transform: uppercase; transition: all 0.2s; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(253, 185, 19, 0.3);
+    }
+    button.export-btn:hover { background: #eab308; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(253, 185, 19, 0.4); }
 
     @media (max-width: 1400px) {
       .container { grid-template-columns: 1fr; }
@@ -281,6 +274,7 @@
         <div class="model-badge" id="modelStrategyLabel">MODEL: EVALUATING...</div>
       </div>
       
+      <div class="fb-row"><span>Total Annual Events</span><span id="fbTotalEvents">0</span></div>
       <div class="fb-row"><span>Total Vendor Cost (Before Markup)</span><span id="fbVendorCost">$0</span></div>
       
       <div class="fb-row bold"><span>Total Revenue Generated</span><span id="fbTotalRev">$0</span></div>
@@ -293,19 +287,24 @@
       <div class="fb-row highlight bold"><span>Total Margin ($)</span><span id="fbMarginDollar">$0</span></div>
     </div>
 
-    <div class="recommendation">
-      <div class="rec-title">Execution Plan</div>
-      <div class="rec-decision" id="recDecision">Evaluating...</div>
-      <div class="rec-sub" id="recSub">Provide fleet data to generate execution plan.</div>
-      <div class="rec-result" id="recResult">-</div>
+    <div class="export-box">
+      <div class="exp-title">Export Options</div>
+      <div class="rec-decision">Download Financials</div>
+      <div class="exp-sub">Export isolated P&L statements by active service type directly to Microsoft Excel.</div>
+      
+      <button class="export-btn" onclick="exportToExcel()">
+        <svg style="width: 24px; height: 24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+        Export to XLSX
+      </button>
     </div>
 
   </div>
 </div>
 
-<div id="hidden-pvpm-data" class="hidden-code"></div>
-
 <script>
+  // Global variable to store current calculation state for export
+  window._exportData = null;
+
   // Animation Logic for Header
   function spawnCloud() {
     const symbols = ['+', '-', '×', '÷', '%', '$'];
@@ -348,44 +347,23 @@
       vCard.className = 'v-card';
       vCard.innerHTML = `
         <div class="v-header">${displayName}</div>
-        
         <div style="font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; text-align: center;">Unit Count</div>
         <div class="stepper">
           <button class="step-btn" onclick="stepVal('${c}', -1)">-</button>
           <input type="number" id="inp_${c}_count" value="${state[c].count}" onchange="updateVal('${c}', 'count', this.value)">
           <button class="step-btn" onclick="stepVal('${c}', 1)">+</button>
         </div>
-        
         <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin: 20px 0 8px; text-transform: uppercase; text-align: center;">Annual Events / Unit</div>
         <div class="v-rates">
-          <div class="v-rate-col">
-            <label>Ersa</label>
-            <input type="number" step="0.1" value="${state[c].ersa_r}" onchange="updateVal('${c}', 'ersa_r', this.value)">
-          </div>
-          <div class="v-rate-col">
-            <label>PM</label>
-            <input type="number" step="0.1" value="${state[c].pm_r}" onchange="updateVal('${c}', 'pm_r', this.value)">
-          </div>
-          <div class="v-rate-col">
-            <label>Rep</label>
-            <input type="number" step="0.1" value="${state[c].rep_r}" onchange="updateVal('${c}', 'rep_r', this.value)">
-          </div>
+          <div class="v-rate-col"><label>Ersa</label><input type="number" step="0.1" value="${state[c].ersa_r}" onchange="updateVal('${c}', 'ersa_r', this.value)"></div>
+          <div class="v-rate-col"><label>PM</label><input type="number" step="0.1" value="${state[c].pm_r}" onchange="updateVal('${c}', 'pm_r', this.value)"></div>
+          <div class="v-rate-col"><label>Rep</label><input type="number" step="0.1" value="${state[c].rep_r}" onchange="updateVal('${c}', 'rep_r', this.value)"></div>
         </div>
-
         <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); margin: 20px 0 8px; text-transform: uppercase; text-align: center;">Avg Repair Cost ($)</div>
         <div class="v-rates" style="margin-bottom: 0;">
-          <div class="v-rate-col">
-            <label>Ersa</label>
-            <input type="number" step="1" value="${state[c].c_ersa}" onchange="updateVal('${c}', 'c_ersa', this.value)">
-          </div>
-          <div class="v-rate-col">
-            <label>PM</label>
-            <input type="number" step="1" value="${state[c].c_pm}" onchange="updateVal('${c}', 'c_pm', this.value)">
-          </div>
-          <div class="v-rate-col">
-            <label>Rep</label>
-            <input type="number" step="1" value="${state[c].c_rep}" onchange="updateVal('${c}', 'c_rep', this.value)">
-          </div>
+          <div class="v-rate-col"><label>Ersa</label><input type="number" step="1" value="${state[c].c_ersa}" onchange="updateVal('${c}', 'c_ersa', this.value)"></div>
+          <div class="v-rate-col"><label>PM</label><input type="number" step="1" value="${state[c].c_pm}" onchange="updateVal('${c}', 'c_pm', this.value)"></div>
+          <div class="v-rate-col"><label>Rep</label><input type="number" step="1" value="${state[c].c_rep}" onchange="updateVal('${c}', 'c_rep', this.value)"></div>
         </div>
       `;
       grid.appendChild(vCard);
@@ -466,6 +444,7 @@
     let totHcCost = totHc * CONST.hc_cost;
 
     document.getElementById('heroUnits').textContent = metrics.total.u.toLocaleString();
+    document.getElementById('fbTotalEvents').textContent = Math.floor(metrics.total.ev).toLocaleString();
 
     ['ersa', 'pm', 'rep'].forEach(srv => {
       const card = document.getElementById(`card${srv.toUpperCase()}`);
@@ -503,9 +482,6 @@
     const heroMargDol = document.getElementById('heroMarginDollar');
     
     const strategyBadge = document.getElementById('modelStrategyLabel');
-    const dTitle = document.getElementById('recDecision');
-    const dSub = document.getElementById('recSub');
-    const dRes = document.getElementById('recResult');
 
     fbVendor.textContent = fC0.format(metrics.total.sp);
     fbHcCount.textContent = totHc;
@@ -528,13 +504,14 @@
       fbMarginDollar.textContent = "$0";
       fbMarginDollar.style.color = "var(--text-main)";
 
-      dTitle.textContent = "Awaiting Setup";
-      dSub.textContent = "Add units to calculate pricing and strategy.";
-      dRes.textContent = "-";
+      window._exportData = null;
       return;
     }
 
-    // Determine path: Natural Hybrid, Forced Bundled Hybrid, or PVPM
+    let exportIsPvpm = false;
+    let exportTotalRev = 0;
+    let exportPvpmRev = 0;
+
     if (stdMargin >= target) {
       // STANDARD HYBRID MODEL (Natural Pass)
       strategyBadge.textContent = "MODEL: HYBRID ($95 FEE & 15% MARKUP)";
@@ -558,12 +535,10 @@
       fbMarginDollar.textContent = fC0.format(marginDollar);
       fbMarginDollar.style.color = marginDollar >= 0 ? "var(--good)" : "var(--danger)";
       
-      dTitle.textContent = "Standard Baseline";
-      dSub.textContent = `The base structure achieves a ${target*100}% FOP. Maintain standard handling fees.`;
-      dRes.textContent = `Result = $95 Handling Fee + 15% Vendor Markup`;
+      exportTotalRev = stdRev;
 
     } else if (isBundled) {
-      // FORCED BUNDLED HYBRID MODEL (Failing Target but Forced)
+      // FORCED BUNDLED HYBRID MODEL
       strategyBadge.textContent = "MODEL: BUNDLED HYBRID ($95 FEE & 15% MARKUP)";
       strategyBadge.style.background = "var(--navy)";
       strategyBadge.style.color = "#fff";
@@ -572,7 +547,7 @@
 
       heroRev.textContent = fC0.format(stdRev);
       heroProjMarg.textContent = (stdMargin * 100).toFixed(1) + '%';
-      heroProjMarg.style.color = "var(--danger)"; // Show it's below target
+      heroProjMarg.style.color = "var(--danger)";
       heroMargDol.textContent = fC0.format(marginDollar);
 
       fbTotalRev.textContent = fC0.format(stdRev);
@@ -584,18 +559,20 @@
       
       fbMarginDollar.textContent = fC0.format(marginDollar);
       fbMarginDollar.style.color = "var(--danger)";
-      
-      dTitle.textContent = "Bundled Opportunity";
-      dSub.textContent = `Leveraging broader company services. Applying standard hybrid model despite missing the isolated ${target*100}% FOP target.`;
-      dRes.textContent = `Result = $95 Handling Fee + 15% Vendor Markup`;
+
+      exportTotalRev = stdRev;
       
     } else {
-      // PVPM MODEL (Shift to 10% markup)
+      // PVPM MODEL
+      exportIsPvpm = true;
       let targetRev = grossCost / (1 - target);
       let markupRev_pvpm = metrics.total.sp * CONST.markup_pvpm;
       
       let pvpmRevNeeded = targetRev - metrics.total.sp - markupRev_pvpm;
       let marginDollar = targetRev - grossCost;
+      
+      exportTotalRev = targetRev;
+      exportPvpmRev = pvpmRevNeeded;
 
       let mhePvpmAnnualRev = mheCount * CONST.mhe_pvpm * 12;
       let remainingPvpmAnnual = Math.max(0, pvpmRevNeeded - mhePvpmAnnualRev);
@@ -621,16 +598,116 @@
       
       fbMarginDollar.textContent = fC0.format(marginDollar);
       fbMarginDollar.style.color = "var(--amerit-yellow)";
-
-      dTitle.textContent = "PVPM Model";
-      dSub.textContent = `Waive the handling fee. Charge the calculated PVPM fee + 10% vendor invoice markup to hit target.`;
-      dRes.textContent = `Result = ${fC2.format(blendedPvpm)} Avg PVPM + 10% Vendor Markup (No Handling Fee)`;
     }
+
+    // Save state for Excel Export
+    window._exportData = {
+      isPvpm: exportIsPvpm,
+      totalEvents: metrics.total.ev,
+      pvpmRevTotal: exportPvpmRev,
+      hcCostTotal: totHcCost,
+      services: {
+        ERSA: { active: active.ersa, ev: metrics.ersa.ev, sp: metrics.ersa.sp, hc: hc_ersa },
+        PM: { active: active.pm, ev: metrics.pm.ev, sp: metrics.pm.sp, hc: hc_pm },
+        Repair: { active: active.rep, ev: metrics.rep.ev, sp: metrics.rep.sp, hc: hc_rep }
+      }
+    };
+  }
+
+  // Handle ExcelJS Export
+  async function exportToExcel() {
+    if (!window._exportData) {
+      alert("Please add units to calculate financials before exporting.");
+      return;
+    }
+
+    const data = window._exportData;
+    const wb = new ExcelJS.Workbook();
+    wb.creator = 'Calculate+';
+    wb.lastModifiedBy = 'Calculate+';
+    wb.created = new Date();
+
+    const services = ['ERSA', 'PM', 'Repair'];
+    let exportedAny = false;
+
+    services.forEach(srv => {
+      const srvData = data.services[srv];
+      if (srvData.active) {
+        exportedAny = true;
+        const ws = wb.addWorksheet(srv);
+
+        // Define columns
+        ws.columns = [
+          { header: 'Metric', key: 'metric', width: 35 },
+          { header: 'Value', key: 'value', width: 25 }
+        ];
+
+        // Format Header (Blue Background, White Text)
+        const headerRow = ws.getRow(1);
+        headerRow.eachCell((cell) => {
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } }; // Navy Blue
+          cell.font = { color: { argb: 'FFFFFFFF' }, bold: true, size: 12 };
+          cell.alignment = { vertical: 'middle', horizontal: 'left' };
+        });
+
+        // Math prep
+        const ratio = data.totalEvents > 0 ? (srvData.ev / data.totalEvents) : 0;
+        const allocatedHcCost = data.hcCostTotal * ratio;
+        
+        let handlingFee = data.isPvpm ? 0 : (srvData.ev * CONST.fee);
+        let pvpmRev = data.isPvpm ? (data.pvpmRevTotal * ratio) : 0;
+        let markupRev = srvData.sp * (data.isPvpm ? CONST.markup_pvpm : CONST.markup_std);
+        
+        let totalRev = handlingFee + pvpmRev + markupRev;
+        let totalCost = srvData.sp + allocatedHcCost;
+        let margin = totalRev - totalCost;
+
+        // Build Rows
+        const rows = [
+          { metric: 'Annual Events', value: Math.floor(srvData.ev) },
+          { metric: 'Headcount Demand (FTE)', value: srvData.hc },
+          { metric: 'Allocated Headcount Cost', value: allocatedHcCost },
+          { metric: 'Vendor Spend (Before Markup)', value: srvData.sp },
+          { metric: 'Handling Fee Revenue', value: handlingFee },
+          { metric: 'Monthly PVPM Revenue (Allocated)', value: pvpmRev },
+          { metric: 'Vendor Invoice Markup Revenue', value: markupRev },
+          { metric: 'Total Revenue Generated', value: totalRev },
+          { metric: 'Total Margin ($)', value: margin }
+        ];
+
+        // Add Rows and apply Currency formatting where needed
+        rows.forEach(r => {
+          const row = ws.addRow(r);
+          if (r.metric !== 'Annual Events' && r.metric !== 'Headcount Demand (FTE)') {
+            row.getCell('value').numFmt = '"$"#,##0.00';
+          } else {
+            row.getCell('value').numFmt = '#,##0';
+          }
+        });
+
+        // Bold the totals
+        ws.getRow(9).font = { bold: true }; // Total Revenue
+        ws.getRow(10).font = { bold: true }; // Total Margin
+      }
+    });
+
+    if (!exportedAny) {
+      alert("No services selected to export.");
+      return;
+    }
+
+    // Generate file and trigger download
+    const buffer = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'Amerit_Portfolio_Financials.xlsx';
+    link.click();
   }
 
   document.getElementById('resetBtn').addEventListener('click', () => {
     state = JSON.parse(JSON.stringify(DEFAULTS));
-    document.getElementById('isBundled').checked = false; // Reset the bundled toggle as well
+    document.getElementById('isBundled').checked = false;
     initUI();
     calculate();
   });
