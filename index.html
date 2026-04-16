@@ -127,13 +127,11 @@
     .v-card:hover { border-color: #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
     .v-header { font-size: 18px; font-weight: 900; color: var(--amerit-dark); margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
     
-    /* Stepper Input */
     .stepper { display: flex; align-items: center; background: #ffffff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
     .step-btn { background: #f1f5f9; border: none; color: var(--amerit-dark); font-size: 24px; font-weight: 600; width: 44px; height: 44px; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; }
     .step-btn:hover { background: #e2e8f0; }
     .stepper input { flex: 1; width: 100%; border: none; text-align: center; font-size: 20px; font-weight: 900; color: var(--amerit-dark); outline: none; }
 
-    /* Rates Grid */
     .v-rates { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px;}
     .v-rate-col label { display: block; font-size: 12px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; text-align: center;}
     .v-rate-col input { width: 100%; padding: 10px 6px; border: 1px solid var(--border); border-radius: 8px; text-align: center; font-size: 14px; font-weight: 800; outline: none; transition: all 0.2s; }
@@ -429,7 +427,7 @@
     metrics.total.ev = metrics.ersa.ev + metrics.pm.ev + metrics.rep.ev;
     metrics.total.sp = metrics.ersa.sp + metrics.pm.sp + metrics.rep.sp;
 
-    // Calculate total HC strictly based on > 0.89 rounding rule
+    // Calculate total HC strictly based on > 0.89 rounding rule (No arbitrary floors!)
     let rawHc = metrics.total.ev / CONST.hc_eff;
     let totHc = Math.floor(rawHc);
     if ((rawHc - totHc) > 0.89) totHc += 1;
@@ -443,13 +441,11 @@
     ];
     let unallocated = totHc;
     
-    // First pass: whole numbers
     srvs.forEach(s => {
       s.hc = Math.floor(s.ev / CONST.hc_eff);
       unallocated -= s.hc;
     });
     
-    // Second pass: distribute remainder to the services closest to hitting a full headcount
     srvs.sort((a, b) => (b.ev % CONST.hc_eff) - (a.ev % CONST.hc_eff));
     for (let i = 0; i < unallocated; i++) {
       srvs[i % 3].hc += 1;
@@ -462,7 +458,6 @@
     document.getElementById('heroUnits').textContent = metrics.total.u.toLocaleString();
     document.getElementById('fbTotalEvents').textContent = Math.floor(metrics.total.ev).toLocaleString();
 
-    // Update Service Cards
     ['ersa', 'pm', 'rep'].forEach(srv => {
       const card = document.getElementById(`card${srv.toUpperCase()}`);
       card.style.opacity = active[srv] ? '1' : '0.4';
@@ -477,10 +472,19 @@
     let grossCost = metrics.total.sp + totHcCost;
     let stdMargin = stdRev > 0 ? (stdRev - grossCost) / stdRev : 0;
 
+    // NEW DYNAMIC TARGETING RULES
     let target = 0;
-    if (stdRev < 1000000) target = 0.25;
-    else if (stdRev < 2000000) target = 0.20;
-    else target = 0.15;
+    let u = metrics.total.u;
+    
+    if (stdRev < 1000000 && u < 100) {
+      target = 0.30;
+    } else if (stdRev < 1000000) {
+      target = 0.25;
+    } else if (stdRev <= 2000000) {
+      target = 0.20;
+    } else {
+      target = 0.15; // Benchmark target if >$2M
+    }
 
     document.getElementById('heroTargetMargin').textContent = (target * 100).toFixed(0) + '%';
     
@@ -529,22 +533,15 @@
     let exportTotalRev = 0;
     let exportPvpmRev = 0;
 
-    // ACCOUNT MINIMUM LOGIC FOR PVPM
-    // Ensure small fleets always hit a reliable minimum revenue floor
-    let tierMinMonthly = 0;
-    let u = metrics.total.u;
-    if (u >= 1 && u <= 24) tierMinMonthly = 1200;
-    else if (u >= 25 && u <= 99) tierMinMonthly = 1800;
-    else if (u >= 100 && u <= 349) tierMinMonthly = 2500;
-    else if (u >= 350) tierMinMonthly = 4000;
-    
-    let minAnnualPvpm = tierMinMonthly * 12;
+    // CORE LOGIC UPDATE: Apply the requested strategy routing
+    if (isBundled || stdRev > 2000000) {
+      
+      // FORCED HYBRID MODEL (Bundled Deals OR Revenue > $2M)
+      let displayTitle = isBundled ? "MODEL: BUNDLED HYBRID ($95 FEE & 15% MARKUP)" : "MODEL: HYBRID ($95 FEE & 15% MARKUP)";
+      let displayColor = isBundled ? "var(--navy)" : "var(--good)";
 
-    // CORE LOGIC UPDATE: Revenue tier dictates the model strategy.
-    if (isBundled) {
-      // FORCED BUNDLED HYBRID MODEL
-      strategyBadge.textContent = "MODEL: BUNDLED HYBRID ($95 FEE & 15% MARKUP)";
-      strategyBadge.style.background = "var(--navy)";
+      strategyBadge.textContent = displayTitle;
+      strategyBadge.style.background = displayColor;
       strategyBadge.style.color = "#fff";
       
       let marginDollar = stdRev - grossCost;
@@ -566,14 +563,15 @@
 
       exportTotalRev = stdRev;
       
-    } else if (stdRev < 2000000 || stdMargin < target) {
-      // PVPM MODEL (Forced for <$2M to guarantee revenue, OR if >=$2M but failing FOP)
+    } else {
+      
+      // PVPM MODEL (Forced for all Unbundled fleets <= $2M to strictly meet the margin target)
       exportIsPvpm = true;
       let targetRev = grossCost / (1 - target);
       let markupRev_pvpm = metrics.total.sp * CONST.markup_pvpm;
       
       let mathPvpmRevNeeded = targetRev - metrics.total.sp - markupRev_pvpm;
-      let targetPvpmAnnual = Math.max(mathPvpmRevNeeded, minAnnualPvpm);
+      let targetPvpmAnnual = Math.max(mathPvpmRevNeeded, 0);
 
       let mhePvpmAnnualRev = mheCount * CONST.mhe_pvpm * 12;
       let unitsExclReeferMhe = u - state['REEFER'].count - mheCount;
@@ -584,7 +582,7 @@
           basePvpm = Math.round(remainingPvpmAnnual / (unitsExclReeferMhe * 12));
       }
 
-      // Recalculate true financials based on the rounded/minimum PVPM
+      // Recalculate true financials based on the rounded PVPM
       let finalPvpmRev = (basePvpm * unitsExclReeferMhe * 12) + mhePvpmAnnualRev;
       let finalRev = metrics.total.sp + markupRev_pvpm + finalPvpmRev;
       let marginDollar = finalRev - grossCost;
@@ -611,31 +609,6 @@
       
       fbMarginDollar.textContent = fC0.format(marginDollar);
       fbMarginDollar.style.color = "var(--amerit-yellow)";
-
-    } else {
-      // STANDARD HYBRID MODEL (Natural Pass for >= $2M)
-      strategyBadge.textContent = "MODEL: HYBRID ($95 FEE & 15% MARKUP)";
-      strategyBadge.style.background = "var(--good)";
-      strategyBadge.style.color = "#fff";
-      
-      let marginDollar = stdRev - grossCost;
-
-      heroRev.textContent = fC0.format(stdRev);
-      heroProjMarg.textContent = (stdMargin * 100).toFixed(1) + '%';
-      heroProjMarg.style.color = "#fff";
-      heroMargDol.textContent = fC0.format(marginDollar);
-
-      fbTotalRev.textContent = fC0.format(stdRev);
-      fbFeeRev.textContent = fC0.format(metrics.total.ev * CONST.fee);
-      fbPvpmRev.textContent = "$0 (Waived)";
-      
-      fbMarkupRevLabel.textContent = "+ Vendor Invoice Markup (15%)";
-      fbMarkupRev.textContent = fC0.format(metrics.total.sp * CONST.markup_std);
-      
-      fbMarginDollar.textContent = fC0.format(marginDollar);
-      fbMarginDollar.style.color = "var(--good)";
-      
-      exportTotalRev = stdRev;
     }
 
     // Save state for Excel Export
