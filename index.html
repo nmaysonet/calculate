@@ -427,13 +427,11 @@
     metrics.total.ev = metrics.ersa.ev + metrics.pm.ev + metrics.rep.ev;
     metrics.total.sp = metrics.ersa.sp + metrics.pm.sp + metrics.rep.sp;
 
-    // Calculate total HC strictly based on > 0.89 rounding rule (No arbitrary floors!)
     let rawHc = metrics.total.ev / CONST.hc_eff;
     let totHc = Math.floor(rawHc);
     if ((rawHc - totHc) > 0.89) totHc += 1;
     let totHcCost = totHc * CONST.hc_cost;
 
-    // Distribute total integer HC back to individual services for display
     let srvs = [
       { id: 'ersa', ev: metrics.ersa.ev, hc: 0 },
       { id: 'pm', ev: metrics.pm.ev, hc: 0 },
@@ -472,7 +470,7 @@
     let grossCost = metrics.total.sp + totHcCost;
     let stdMargin = stdRev > 0 ? (stdRev - grossCost) / stdRev : 0;
 
-    // NEW DYNAMIC TARGETING RULES
+    // NEW GO-FORWARD PRICING STRATEGY
     let target = 0;
     let u = metrics.total.u;
     
@@ -533,7 +531,7 @@
     let exportTotalRev = 0;
     let exportPvpmRev = 0;
 
-    // CORE LOGIC UPDATE: Apply the requested strategy routing
+    // CORE LOGIC UPDATE: Apply the new requested strategy routing
     if (isBundled || stdRev > 2000000) {
       
       // FORCED HYBRID MODEL (Bundled Deals OR Revenue > $2M)
@@ -617,6 +615,7 @@
       totalEvents: metrics.total.ev,
       pvpmRevTotal: exportPvpmRev,
       hcCostTotal: totHcCost,
+      eligibleUnits: (metrics.total.u - state['REEFER'].count - mheCount),
       services: {
         ERSA: { active: active.ersa, ev: metrics.ersa.ev, sp: metrics.ersa.sp, hc: hc_ersa },
         PM: { active: active.pm, ev: metrics.pm.ev, sp: metrics.pm.sp, hc: hc_pm },
@@ -647,21 +646,18 @@
         exportedAny = true;
         const ws = wb.addWorksheet(srv);
 
-        // Define columns
         ws.columns = [
           { header: 'Metric', key: 'metric', width: 35 },
           { header: 'Value', key: 'value', width: 25 }
         ];
 
-        // Format Header (Blue Background, White Text)
         const headerRow = ws.getRow(1);
         headerRow.eachCell((cell) => {
-          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } }; // Navy Blue
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } }; 
           cell.font = { color: { argb: 'FFFFFFFF' }, bold: true, size: 12 };
           cell.alignment = { vertical: 'middle', horizontal: 'left' };
         });
 
-        // Math prep
         const ratio = data.totalEvents > 0 ? (srvData.ev / data.totalEvents) : 0;
         const allocatedHcCost = data.hcCostTotal * ratio;
         
@@ -673,7 +669,12 @@
         let totalCost = srvData.sp + allocatedHcCost;
         let margin = totalRev - totalCost;
 
-        // Build Rows
+        let fopPct = totalRev > 0 ? (margin / totalRev) : 0;
+        let pvpmPerUnit = 0;
+        if (data.isPvpm && data.eligibleUnits > 0) {
+           pvpmPerUnit = (pvpmRev / 12) / data.eligibleUnits;
+        }
+
         const rows = [
           { metric: 'Annual Events', value: Math.floor(srvData.ev) },
           { metric: 'Headcount Demand (FTE)', value: srvData.hc },
@@ -683,22 +684,26 @@
           { metric: 'Monthly PVPM Revenue (Allocated)', value: pvpmRev },
           { metric: 'Vendor Invoice Markup Revenue', value: markupRev },
           { metric: 'Total Revenue Generated', value: totalRev },
-          { metric: 'Total Margin ($)', value: margin }
+          { metric: 'Total Margin ($)', value: margin },
+          { metric: 'FOP Margin (%)', value: fopPct },
+          { metric: 'Allocated PVPM Fee (Per Unit/Mo)', value: pvpmPerUnit }
         ];
 
-        // Add Rows and apply Currency formatting where needed
         rows.forEach(r => {
           const row = ws.addRow(r);
-          if (r.metric !== 'Annual Events' && r.metric !== 'Headcount Demand (FTE)') {
-            row.getCell('value').numFmt = '"$"#,##0.00';
-          } else {
+          if (r.metric === 'Annual Events' || r.metric === 'Headcount Demand (FTE)') {
             row.getCell('value').numFmt = '#,##0';
+          } else if (r.metric === 'FOP Margin (%)') {
+            row.getCell('value').numFmt = '0.00%';
+          } else {
+            row.getCell('value').numFmt = '"$"#,##0.00';
           }
         });
 
-        // Bold the totals
-        ws.getRow(9).font = { bold: true }; // Total Revenue
-        ws.getRow(10).font = { bold: true }; // Total Margin
+        ws.getRow(9).font = { bold: true }; 
+        ws.getRow(10).font = { bold: true }; 
+        ws.getRow(11).font = { bold: true }; 
+        ws.getRow(12).font = { bold: true }; 
       }
     });
 
@@ -707,7 +712,6 @@
       return;
     }
 
-    // Generate file and trigger download
     const buffer = await wb.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     const link = document.createElement('a');
