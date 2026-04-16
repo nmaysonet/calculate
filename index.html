@@ -279,7 +279,12 @@
       
       <div class="fb-row bold"><span>Total Revenue Generated</span><span id="fbTotalRev">$0</span></div>
       <div class="fb-row sub"><span>+ Handling Fee Revenue</span><span id="fbFeeRev">$0</span></div>
-      <div class="fb-row sub"><span>+ Monthly PVPM Revenue</span><span id="fbPvpmRev">$0</span></div>
+      <div class="fb-row sub">
+        <span>+ Monthly PVPM Revenue 
+          <span style="font-size: 13px; font-weight: 600; color: var(--text-muted); margin-left: 6px;">(<span id="fbBilledUnits">0</span> Billed Units)</span>
+        </span>
+        <span id="fbPvpmRev">$0</span>
+      </div>
       <div class="fb-row sub"><span id="fbMarkupRevLabel">+ Vendor Invoice Markup (15%)</span><span id="fbMarkupRev">$0</span></div>
       
       <div class="fb-row bold" style="color: var(--danger);"><span>Total Headcount Cost (<span id="fbHcCount">0</span> @ $78,000)</span><span id="fbHcCost">-$0</span></div>
@@ -303,7 +308,6 @@
 <div id="hidden-pvpm-data" class="hidden-code"></div>
 
 <script>
-  // Animation Logic for Header
   function spawnCloud() {
     const symbols = ['+', '-', '×', '÷', '%', '$'];
     const cloud = document.createElement('div');
@@ -316,7 +320,6 @@
   }
   setInterval(spawnCloud, 600);
 
-  // App Logic
   const CLASSES = ['HD', 'MD', 'LD', 'TRAILER', 'REEFER', 'MHE', 'OTHER_1', 'OTHER_2'];
   const DEFAULTS = {
     HD: { count: 0, ersa_r: 1.2, pm_r: 2.0, rep_r: 2.0, c_ersa: 800, c_pm: 600, c_rep: 900 },
@@ -427,16 +430,14 @@
     metrics.total.ev = metrics.ersa.ev + metrics.pm.ev + metrics.rep.ev;
     metrics.total.sp = metrics.ersa.sp + metrics.pm.sp + metrics.rep.sp;
 
-    // Calculate total HC strictly based on > 0.89 rounding rule
     let rawHc = metrics.total.ev / CONST.hc_eff;
     let totHc = Math.floor(rawHc);
     if ((rawHc - totHc) > 0.89) totHc += 1;
     let totHcCost = totHc * CONST.hc_cost;
 
-    // Distribute total integer HC back to individual services for display
     let hc_ersa = 0;
     let hc_pm = 0;
-    let hc_rep = 0; // The user requested PM gets 100% of the combo HC cost
+    let hc_rep = 0; 
 
     if (metrics.total.ev > 0) {
       if (active.ersa && !active.pm && !active.rep) {
@@ -452,6 +453,10 @@
 
     document.getElementById('heroUnits').textContent = metrics.total.u.toLocaleString();
     document.getElementById('fbTotalEvents').textContent = Math.floor(metrics.total.ev).toLocaleString();
+    
+    // Explicit UI update for Billed Units to visually prove Reefers are mathematically excluded
+    let billedUnitsCount = metrics.total.u - state['REEFER'].count;
+    document.getElementById('fbBilledUnits').textContent = billedUnitsCount.toLocaleString();
 
     ['ersa', 'pm', 'rep'].forEach(srv => {
       const card = document.getElementById(`card${srv.toUpperCase()}`);
@@ -467,7 +472,6 @@
     let grossCost = metrics.total.sp + totHcCost;
     let stdMargin = stdRev > 0 ? (stdRev - grossCost) / stdRev : 0;
 
-    // NEW GO-FORWARD PRICING STRATEGY
     let target = 0;
     let u = metrics.total.u;
     
@@ -478,7 +482,7 @@
     } else if (stdRev <= 2000000) {
       target = 0.20;
     } else {
-      target = 0.15; // Benchmark target if >$2M
+      target = 0.15;
     }
 
     document.getElementById('heroTargetMargin').textContent = (target * 100).toFixed(0) + '%';
@@ -528,10 +532,7 @@
     let exportTotalRev = 0;
     let exportPvpmRev = 0;
 
-    // CORE LOGIC UPDATE: Apply the new requested strategy routing
     if (isBundled || stdRev > 2000000) {
-      
-      // FORCED HYBRID MODEL (Bundled Deals OR Revenue > $2M)
       let displayTitle = isBundled ? "MODEL: BUNDLED HYBRID ($95 FEE & 15% MARKUP)" : "MODEL: HYBRID ($95 FEE & 15% MARKUP)";
       let displayColor = isBundled ? "var(--navy)" : "var(--good)";
 
@@ -559,8 +560,6 @@
       exportTotalRev = stdRev;
       
     } else {
-      
-      // PVPM MODEL (Forced for all Unbundled fleets <= $2M to strictly meet the margin target)
       exportIsPvpm = true;
       let targetRev = grossCost / (1 - target);
       let markupRev_pvpm = metrics.total.sp * CONST.markup_pvpm;
@@ -577,7 +576,6 @@
           basePvpm = Math.round(remainingPvpmAnnual / (unitsExclReeferMhe * 12));
       }
 
-      // Recalculate true financials based on the rounded PVPM
       let finalPvpmRev = (basePvpm * unitsExclReeferMhe * 12) + mhePvpmAnnualRev;
       let finalRev = metrics.total.sp + markupRev_pvpm + finalPvpmRev;
       let marginDollar = finalRev - grossCost;
@@ -586,7 +584,8 @@
       exportTotalRev = finalRev;
       exportPvpmRev = finalPvpmRev;
 
-      strategyBadge.textContent = `MODEL: PVPM ($${basePvpm} / UNIT)`;
+      // Make the badge explicitly state Reefers are excluded so the user knows what $X applies to.
+      strategyBadge.textContent = `MODEL: PVPM ($${basePvpm} / UNIT - EXCL REEFERS)`;
       strategyBadge.style.background = "var(--amerit-yellow)";
       strategyBadge.style.color = "var(--amerit-dark)";
 
@@ -612,7 +611,7 @@
       totalEvents: metrics.total.ev,
       pvpmRevTotal: exportPvpmRev,
       hcCostTotal: totHcCost,
-      eligibleUnits: (metrics.total.u - state['REEFER'].count - mheCount),
+      eligibleUnits: (metrics.total.u - state['REEFER'].count - mheCount), // Strict tracking of units billed dynamically
       services: {
         ERSA: { active: active.ersa, ev: metrics.ersa.ev, sp: metrics.ersa.sp, hc: hc_ersa },
         PM: { active: active.pm, ev: metrics.pm.ev, sp: metrics.pm.sp, hc: hc_pm },
@@ -621,7 +620,6 @@
     };
   }
 
-  // Handle ExcelJS Export
   async function exportToExcel() {
     if (!window._exportData) {
       alert("Please add units to calculate financials before exporting.");
@@ -645,7 +643,7 @@
 
         ws.columns = [
           { header: 'Metric', key: 'metric', width: 35 },
-          { header: 'Value', key: 'value', width: 25 }
+          { header: 'Value', key: 'value', width: 30 }
         ];
 
         const headerRow = ws.getRow(1);
@@ -656,7 +654,7 @@
         });
 
         const ratio = data.totalEvents > 0 ? (srvData.ev / data.totalEvents) : 0;
-        const allocatedHcCost = srvData.hc * CONST.hc_cost; // 100% of PM/Repair HC allocated to PM
+        const allocatedHcCost = srvData.hc * CONST.hc_cost; 
         
         let handlingFee = data.isPvpm ? 0 : (srvData.ev * CONST.fee);
         let pvpmRev = data.isPvpm ? (data.pvpmRevTotal * ratio) : 0;
@@ -667,6 +665,8 @@
         let margin = totalRev - totalCost;
 
         let fopPct = totalRev > 0 ? (margin / totalRev) : 0;
+        
+        // Dynamically calculate what the Allocated PVPM per unit looks like on this specific P&L tab
         let pvpmPerUnit = 0;
         if (data.isPvpm && data.eligibleUnits > 0) {
            pvpmPerUnit = (pvpmRev / 12) / data.eligibleUnits;
@@ -683,7 +683,7 @@
           { metric: 'Total Revenue Generated', value: totalRev },
           { metric: 'Total Margin ($)', value: margin },
           { metric: 'FOP Margin (%)', value: fopPct },
-          { metric: 'Allocated PVPM Fee (Per Unit/Mo)', value: pvpmPerUnit }
+          { metric: 'Allocated PVPM Fee (Per Billed Unit/Mo)', value: pvpmPerUnit }
         ];
 
         rows.forEach(r => {
@@ -700,7 +700,7 @@
         ws.getRow(9).font = { bold: true }; 
         ws.getRow(10).font = { bold: true }; 
         ws.getRow(11).font = { bold: true }; 
-        ws.getRow(12).font = { bold: true }; 
+        ws.getRow(12).font = { bold: true, color: { argb: 'FF64748B' } }; 
       }
     });
 
