@@ -407,7 +407,6 @@
       total: { ev: 0, sp: 0, u: 0 }
     };
     
-    let eligibleDistEvents = 0;
     let mheCount = state['MHE'].count;
 
     CLASSES.forEach(c => {
@@ -422,9 +421,6 @@
       metrics.ersa.ev += evE; metrics.ersa.sp += spE;
       metrics.pm.ev += evP;   metrics.pm.sp += spP;
       metrics.rep.ev += evR;  metrics.rep.sp += spR;
-
-      let cEv = evE + evP + evR;
-      if(c !== 'REEFER' && c !== 'MHE') { eligibleDistEvents += cEv; }
     });
 
     metrics.total.ev = metrics.ersa.ev + metrics.pm.ev + metrics.rep.ev;
@@ -561,19 +557,12 @@
     } else {
       exportIsPvpm = true;
       
-      // EXCLUDE REEFER SPEND FROM THE MARGIN DEFICIT PVPM CALCULATION
-      let reeferSp = 0;
-      if(active.ersa) reeferSp += state['REEFER'].count * state['REEFER'].ersa_r * state['REEFER'].c_ersa;
-      if(active.pm)   reeferSp += state['REEFER'].count * state['REEFER'].pm_r * state['REEFER'].c_pm;
-      if(active.rep)  reeferSp += state['REEFER'].count * state['REEFER'].rep_r * state['REEFER'].c_rep;
-
-      let coreSp = metrics.total.sp - reeferSp;
+      // CALCULATE ENTIRE PORTFOLIO TARGET DEFICIT
+      // This forces the FOP to successfully hit 25% or 20% on the entire spend (including reefers)
+      let targetRev = grossCost / (1 - target);
+      let markupRev_pvpm = metrics.total.sp * CONST.markup_pvpm;
       
-      // Calculate target PVPM based ONLY on the core fleet spend and total HC
-      let targetRevCore = (coreSp + totHcCost) / (1 - target);
-      let markupRev_pvpm_core = coreSp * CONST.markup_pvpm;
-      
-      let mathPvpmRevNeeded = targetRevCore - coreSp - markupRev_pvpm_core;
+      let mathPvpmRevNeeded = targetRev - metrics.total.sp - markupRev_pvpm;
       let targetPvpmAnnual = Math.max(mathPvpmRevNeeded, 0);
 
       let mhePvpmAnnualRev = mheCount * CONST.mhe_pvpm * 12;
@@ -581,14 +570,13 @@
       
       let basePvpm = 0;
       if (unitsExclReeferMhe > 0) {
+          // Distribute the entire deficit ONLY to the billed units
           let remainingPvpmAnnual = Math.max(0, targetPvpmAnnual - mhePvpmAnnualRev);
           basePvpm = Math.round(remainingPvpmAnnual / (unitsExclReeferMhe * 12));
       }
 
       let finalPvpmRev = (basePvpm * unitsExclReeferMhe * 12) + mhePvpmAnnualRev;
-      let markupRev_pvpm_total = metrics.total.sp * CONST.markup_pvpm; // Still get 10% on reefer
-      
-      let finalRev = metrics.total.sp + markupRev_pvpm_total + finalPvpmRev;
+      let finalRev = metrics.total.sp + markupRev_pvpm + finalPvpmRev;
       let marginDollar = finalRev - grossCost;
       let finalMarginPct = finalRev > 0 ? (marginDollar / finalRev) : 0;
       
@@ -609,12 +597,13 @@
       fbPvpmRev.textContent = fC0.format(finalPvpmRev);
       
       fbMarkupRevLabel.textContent = "+ Vendor Invoice Markup (10%)";
-      fbMarkupRev.textContent = fC0.format(markupRev_pvpm_total);
+      fbMarkupRev.textContent = fC0.format(markupRev_pvpm);
       
       fbMarginDollar.textContent = fC0.format(marginDollar);
       fbMarginDollar.style.color = "var(--amerit-yellow)";
     }
 
+    // Save state for Excel Export
     window._exportData = {
       isPvpm: exportIsPvpm,
       totalEvents: metrics.total.ev,
