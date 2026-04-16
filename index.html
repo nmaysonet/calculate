@@ -427,31 +427,28 @@
     metrics.total.ev = metrics.ersa.ev + metrics.pm.ev + metrics.rep.ev;
     metrics.total.sp = metrics.ersa.sp + metrics.pm.sp + metrics.rep.sp;
 
+    // Calculate total HC strictly based on > 0.89 rounding rule
     let rawHc = metrics.total.ev / CONST.hc_eff;
     let totHc = Math.floor(rawHc);
     if ((rawHc - totHc) > 0.89) totHc += 1;
     let totHcCost = totHc * CONST.hc_cost;
 
-    let srvs = [
-      { id: 'ersa', ev: metrics.ersa.ev, hc: 0 },
-      { id: 'pm', ev: metrics.pm.ev, hc: 0 },
-      { id: 'rep', ev: metrics.rep.ev, hc: 0 }
-    ];
-    let unallocated = totHc;
-    
-    srvs.forEach(s => {
-      s.hc = Math.floor(s.ev / CONST.hc_eff);
-      unallocated -= s.hc;
-    });
-    
-    srvs.sort((a, b) => (b.ev % CONST.hc_eff) - (a.ev % CONST.hc_eff));
-    for (let i = 0; i < unallocated; i++) {
-      srvs[i % 3].hc += 1;
+    // Distribute total integer HC back to individual services for display
+    let hc_ersa = 0;
+    let hc_pm = 0;
+    let hc_rep = 0; // The user requested PM gets 100% of the combo HC cost
+
+    if (metrics.total.ev > 0) {
+      if (active.ersa && !active.pm && !active.rep) {
+        hc_ersa = totHc;
+      } else if (!active.ersa && (active.pm || active.rep)) {
+        hc_pm = totHc;
+      } else {
+        let ersa_ratio = metrics.ersa.ev / metrics.total.ev;
+        hc_ersa = Math.round(totHc * ersa_ratio);
+        hc_pm = totHc - hc_ersa;
+      }
     }
-    
-    let hc_ersa = srvs.find(s => s.id === 'ersa').hc;
-    let hc_pm = srvs.find(s => s.id === 'pm').hc;
-    let hc_rep = srvs.find(s => s.id === 'rep').hc;
 
     document.getElementById('heroUnits').textContent = metrics.total.u.toLocaleString();
     document.getElementById('fbTotalEvents').textContent = Math.floor(metrics.total.ev).toLocaleString();
@@ -659,7 +656,7 @@
         });
 
         const ratio = data.totalEvents > 0 ? (srvData.ev / data.totalEvents) : 0;
-        const allocatedHcCost = data.hcCostTotal * ratio;
+        const allocatedHcCost = srvData.hc * CONST.hc_cost; // 100% of PM/Repair HC allocated to PM
         
         let handlingFee = data.isPvpm ? 0 : (srvData.ev * CONST.fee);
         let pvpmRev = data.isPvpm ? (data.pvpmRevTotal * ratio) : 0;
