@@ -426,9 +426,9 @@
     metrics.total.ev = metrics.ersa.ev + metrics.pm.ev + metrics.rep.ev;
     metrics.total.sp = metrics.ersa.sp + metrics.pm.sp + metrics.rep.sp;
 
+    // Calculate total HC strictly based on standard rounding (>= 0.50 rounds up)
     let rawHc = metrics.total.ev / CONST.hc_eff;
-    let totHc = Math.floor(rawHc);
-    if ((rawHc - totHc) > 0.89) totHc += 1;
+    let totHc = Math.round(rawHc);
     let totHcCost = totHc * CONST.hc_cost;
 
     let hc_ersa = 0;
@@ -558,7 +558,7 @@
       exportIsPvpm = true;
       
       // CALCULATE ENTIRE PORTFOLIO TARGET DEFICIT
-      // This forces the FOP to successfully hit 25% or 20% on the entire spend (including reefers)
+      // This forces the FOP to successfully hit 30%, 25%, or 20% on the entire spend
       let targetRev = grossCost / (1 - target);
       let markupRev_pvpm = metrics.total.sp * CONST.markup_pvpm;
       
@@ -603,7 +603,6 @@
       fbMarginDollar.style.color = "var(--amerit-yellow)";
     }
 
-    // Save state for Excel Export
     window._exportData = {
       isPvpm: exportIsPvpm,
       totalEvents: metrics.total.ev,
