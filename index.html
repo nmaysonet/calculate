@@ -529,7 +529,6 @@
 
     let hybridPasses = stdMargin >= target;
 
-    // We only allow standard Hybrid if it's Bundled OR if it's >$2M AND successfully meets the margin floor on its own.
     if (isBundled || (stdRev > 2000000 && hybridPasses)) {
       
       let displayTitle = isBundled ? "MODEL: BUNDLED HYBRID ($95 FEE & 15% MARKUP)" : "MODEL: HYBRID ($95 FEE & 15% MARKUP)";
@@ -574,7 +573,8 @@
       let basePvpm = 0;
       if (unitsExclReeferMhe > 0) {
           let remainingPvpmAnnual = Math.max(0, targetPvpmAnnual - mhePvpmAnnualRev);
-          basePvpm = Math.round(remainingPvpmAnnual / (unitsExclReeferMhe * 12));
+          // CRITICAL UPDATE: Always round up (Math.ceil) to guarantee minimum margin floor is met
+          basePvpm = Math.ceil(remainingPvpmAnnual / (unitsExclReeferMhe * 12));
       }
 
       // $200 PVPM HARD CAP RULE
