@@ -477,7 +477,7 @@
     } else if (stdRev <= 2000000) {
       target = 0.20;
     } else {
-      target = 0.15;
+      target = 0.15; // Target benchmark for standard Hybrid
     }
 
     document.getElementById('heroTargetMargin').textContent = (target * 100).toFixed(0) + '%';
@@ -527,7 +527,11 @@
     let exportTotalRev = 0;
     let exportPvpmRev = 0;
 
-    if (isBundled || stdRev > 2000000) {
+    let hybridPasses = stdMargin >= target;
+
+    // We only allow standard Hybrid if it's Bundled OR if it's >$2M AND successfully meets the margin floor on its own.
+    if (isBundled || (stdRev > 2000000 && hybridPasses)) {
+      
       let displayTitle = isBundled ? "MODEL: BUNDLED HYBRID ($95 FEE & 15% MARKUP)" : "MODEL: HYBRID ($95 FEE & 15% MARKUP)";
       let displayColor = isBundled ? "var(--navy)" : "var(--good)";
 
@@ -557,8 +561,7 @@
     } else {
       exportIsPvpm = true;
       
-      // CALCULATE ENTIRE PORTFOLIO TARGET DEFICIT
-      // This forces the FOP to successfully hit 30%, 25%, or 20% on the entire spend
+      // FORCED PVPM LOGIC to hit target profit floor
       let targetRev = grossCost / (1 - target);
       let markupRev_pvpm = metrics.total.sp * CONST.markup_pvpm;
       
@@ -570,9 +573,15 @@
       
       let basePvpm = 0;
       if (unitsExclReeferMhe > 0) {
-          // Distribute the entire deficit ONLY to the billed units
           let remainingPvpmAnnual = Math.max(0, targetPvpmAnnual - mhePvpmAnnualRev);
           basePvpm = Math.round(remainingPvpmAnnual / (unitsExclReeferMhe * 12));
+      }
+
+      // $200 PVPM HARD CAP RULE
+      let isCapped = false;
+      if (basePvpm > 200) {
+          basePvpm = 200;
+          isCapped = true;
       }
 
       let finalPvpmRev = (basePvpm * unitsExclReeferMhe * 12) + mhePvpmAnnualRev;
@@ -583,13 +592,22 @@
       exportTotalRev = finalRev;
       exportPvpmRev = finalPvpmRev;
 
-      strategyBadge.textContent = `MODEL: PVPM ($${basePvpm} / UNIT - EXCL REEFERS)`;
-      strategyBadge.style.background = "var(--amerit-yellow)";
-      strategyBadge.style.color = "var(--amerit-dark)";
+      if (isCapped) {
+          strategyBadge.textContent = `MODEL: PVPM ($200 / UNIT CAP REACHED)`;
+          strategyBadge.style.background = "var(--danger)";
+          strategyBadge.style.color = "#ffffff";
+          heroProjMarg.style.color = "var(--danger)";
+          fbMarginDollar.style.color = "var(--danger)";
+      } else {
+          strategyBadge.textContent = `MODEL: PVPM ($${basePvpm} / UNIT - EXCL REEFERS)`;
+          strategyBadge.style.background = "var(--amerit-yellow)";
+          strategyBadge.style.color = "var(--amerit-dark)";
+          heroProjMarg.style.color = "var(--amerit-yellow)";
+          fbMarginDollar.style.color = "var(--amerit-yellow)";
+      }
 
       heroRev.textContent = fC0.format(finalRev);
       heroProjMarg.textContent = (finalMarginPct * 100).toFixed(1) + '%';
-      heroProjMarg.style.color = "var(--amerit-yellow)";
       heroMargDol.textContent = fC0.format(marginDollar);
 
       fbTotalRev.textContent = fC0.format(finalRev);
@@ -600,9 +618,9 @@
       fbMarkupRev.textContent = fC0.format(markupRev_pvpm);
       
       fbMarginDollar.textContent = fC0.format(marginDollar);
-      fbMarginDollar.style.color = "var(--amerit-yellow)";
     }
 
+    // Save state for Excel Export
     window._exportData = {
       isPvpm: exportIsPvpm,
       totalEvents: metrics.total.ev,
