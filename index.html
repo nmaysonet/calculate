@@ -88,18 +88,18 @@
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); width: 100%; }
     .card-title { font-size: 18px; font-weight: 900; margin-bottom: 24px; color: var(--amerit-dark); text-transform: uppercase; letter-spacing: 1px; display: flex; justify-content: space-between; align-items: center; }
 
-    /* Header Actions (Reset & Bundled) */
+    /* Header Actions (Reset & Strategic) */
     .header-actions { display: flex; gap: 12px; align-items: center; }
     
-    .bundled-btn-container { cursor: pointer; display: inline-block; position: relative; }
-    .bundled-btn-container input { position: absolute; opacity: 0; width: 0; height: 0; }
-    .bundled-btn {
+    .strategic-btn-container { cursor: pointer; display: inline-block; position: relative; }
+    .strategic-btn-container input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .strategic-btn {
       background: #f1f5f9; color: var(--text-muted); padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 800;
       text-transform: uppercase; transition: all 0.2s; display: flex; align-items: center; gap: 8px;
     }
-    .bundled-btn svg { width: 16px; height: 16px; }
-    .bundled-btn-container:hover .bundled-btn { background: #e2e8f0; color: var(--amerit-dark); }
-    .bundled-btn-container input:checked + .bundled-btn { background: var(--navy); color: #ffffff; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3); }
+    .strategic-btn svg { width: 16px; height: 16px; }
+    .strategic-btn-container:hover .strategic-btn { background: #e2e8f0; color: var(--amerit-dark); }
+    .strategic-btn-container input:checked + .strategic-btn { background: var(--navy); color: #ffffff; box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3); }
 
     button.reset-btn { 
       background: var(--good); border: none; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; text-transform: uppercase; transition: all 0.2s; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2); 
@@ -213,11 +213,11 @@
     <div class="card-title">
       OPERATIONAL VARIABLES
       <div class="header-actions">
-        <label class="bundled-btn-container">
-          <input type="checkbox" id="isBundled">
-          <div class="bundled-btn">
+        <label class="strategic-btn-container">
+          <input type="checkbox" id="isStrategic">
+          <div class="strategic-btn">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-            Bundled
+            Strategic Account
           </div>
         </label>
         <button class="reset-btn" id="resetBtn">Reset Defaults</button>
@@ -251,19 +251,19 @@
       <div class="service-card" id="cardERSA">
         <div class="sc-title">ERSA</div>
         <div class="sc-stat"><span>Annual Events</span><span id="ersaEvents">0</span></div>
-        <div class="sc-stat"><span>Headcount</span><span id="ersaFte">0</span></div>
+        <div class="sc-stat"><span>Headcount</span><span id="ersaFte">0.00</span></div>
         <div class="sc-stat"><span>Vendor Spend</span><span id="ersaSpend">$0</span></div>
       </div>
       <div class="service-card" id="cardPM">
         <div class="sc-title">PM</div>
         <div class="sc-stat"><span>Annual Events</span><span id="pmEvents">0</span></div>
-        <div class="sc-stat"><span>Headcount</span><span id="pmFte">0</span></div>
+        <div class="sc-stat"><span>Headcount</span><span id="pmFte">0.00</span></div>
         <div class="sc-stat"><span>Vendor Spend</span><span id="pmSpend">$0</span></div>
       </div>
       <div class="service-card" id="cardREP">
         <div class="sc-title">Repair</div>
         <div class="sc-stat"><span>Annual Events</span><span id="repEvents">0</span></div>
-        <div class="sc-stat"><span>Headcount</span><span id="repFte">0</span></div>
+        <div class="sc-stat"><span>Headcount</span><span id="repFte">0.00</span></div>
         <div class="sc-stat"><span>Vendor Spend</span><span id="repSpend">$0</span></div>
       </div>
     </div>
@@ -287,7 +287,7 @@
       </div>
       <div class="fb-row sub"><span id="fbMarkupRevLabel">+ Vendor Invoice Markup (15%)</span><span id="fbMarkupRev">$0</span></div>
       
-      <div class="fb-row bold" style="color: var(--danger);"><span>Total Headcount Cost (<span id="fbHcCount">0</span> @ $78,000)</span><span id="fbHcCost">-$0</span></div>
+      <div class="fb-row bold" style="color: var(--danger);"><span>Total Headcount Cost (<span id="fbHcCount">0.00</span> @ $78,000)</span><span id="fbHcCost">-$0</span></div>
       
       <div class="fb-row highlight bold"><span>Total Margin ($)</span><span id="fbMarginDollar">$0</span></div>
     </div>
@@ -332,7 +332,7 @@
     OTHER_2: { count: 0, ersa_r: 0.0, pm_r: 2.0, rep_r: 2.0, c_ersa: 1000, c_pm: 500, c_rep: 1000 }
   };
 
-  const CONST = { hc_eff: 1500, hc_cost: 78000, fee: 95, markup_std: 0.15, markup_pvpm: 0.10, mhe_pvpm: 5.00 };
+  const CONST = { hc_eff: 1500, hc_cost: 78000, fee: 95, markup_std: 0.15, markup_pvpm: 0.20, mhe_pvpm: 5.00 };
   let state = JSON.parse(JSON.stringify(DEFAULTS));
 
   const fC0 = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
@@ -373,12 +373,12 @@
     const incPM = document.getElementById('incPM');
     const incREP = document.getElementById('incREP');
     const incERSA = document.getElementById('incERSA');
-    const isBundled = document.getElementById('isBundled');
+    const isStrategic = document.getElementById('isStrategic');
 
     incPM.addEventListener('change', (e) => { incREP.checked = e.target.checked; calculate(); });
     incREP.addEventListener('change', (e) => { incPM.checked = e.target.checked; calculate(); });
     incERSA.addEventListener('change', calculate);
-    isBundled.addEventListener('change', calculate);
+    isStrategic.addEventListener('change', calculate);
   }
 
   window.stepVal = function(c, dir) {
@@ -400,7 +400,7 @@
       rep: document.getElementById('incREP').checked
     };
     
-    const isBundled = document.getElementById('isBundled').checked;
+    const isStrategic = document.getElementById('isStrategic').checked;
 
     let metrics = {
       ersa: { ev: 0, sp: 0 }, pm: { ev: 0, sp: 0 }, rep: { ev: 0, sp: 0 },
@@ -426,26 +426,13 @@
     metrics.total.ev = metrics.ersa.ev + metrics.pm.ev + metrics.rep.ev;
     metrics.total.sp = metrics.ersa.sp + metrics.pm.sp + metrics.rep.sp;
 
-    // Calculate total HC strictly based on standard rounding (>= 0.50 rounds up)
-    let rawHc = metrics.total.ev / CONST.hc_eff;
-    let totHc = Math.round(rawHc);
+    // EXACT FRACTIONAL HEADCOUNT (No rounding or forcing minimums)
+    let totHc = metrics.total.ev / CONST.hc_eff;
     let totHcCost = totHc * CONST.hc_cost;
 
-    let hc_ersa = 0;
-    let hc_pm = 0;
-    let hc_rep = 0; 
-
-    if (metrics.total.ev > 0) {
-      if (active.ersa && !active.pm && !active.rep) {
-        hc_ersa = totHc;
-      } else if (!active.ersa && (active.pm || active.rep)) {
-        hc_pm = totHc;
-      } else {
-        let ersa_ratio = metrics.ersa.ev / metrics.total.ev;
-        hc_ersa = Math.round(totHc * ersa_ratio);
-        hc_pm = totHc - hc_ersa;
-      }
-    }
+    let hc_ersa = metrics.ersa.ev / CONST.hc_eff;
+    let hc_pm = metrics.pm.ev / CONST.hc_eff;
+    let hc_rep = metrics.rep.ev / CONST.hc_eff;
 
     document.getElementById('heroUnits').textContent = metrics.total.u.toLocaleString();
     document.getElementById('fbTotalEvents').textContent = Math.floor(metrics.total.ev).toLocaleString();
@@ -459,28 +446,12 @@
       
       let srvHc = srv === 'ersa' ? hc_ersa : (srv === 'pm' ? hc_pm : hc_rep);
       document.getElementById(`${srv}Events`).textContent = Math.floor(metrics[srv].ev).toLocaleString();
-      document.getElementById(`${srv}Fte`).textContent = srvHc;
+      document.getElementById(`${srv}Fte`).textContent = srvHc.toFixed(2);
       document.getElementById(`${srv}Spend`).textContent = fC0.format(metrics[srv].sp);
     });
 
     let stdRev = (metrics.total.ev * CONST.fee) + (metrics.total.sp * (1 + CONST.markup_std));
     let grossCost = metrics.total.sp + totHcCost;
-    let stdMargin = stdRev > 0 ? (stdRev - grossCost) / stdRev : 0;
-
-    let target = 0;
-    let u = metrics.total.u;
-    
-    if (stdRev < 1000000 && u < 100) {
-      target = 0.30;
-    } else if (stdRev < 1000000) {
-      target = 0.25;
-    } else if (stdRev <= 2000000) {
-      target = 0.20;
-    } else {
-      target = 0.15; // Target benchmark for standard Hybrid
-    }
-
-    document.getElementById('heroTargetMargin').textContent = (target * 100).toFixed(0) + '%';
     
     const fbVendor = document.getElementById('fbVendorCost');
     const fbTotalRev = document.getElementById('fbTotalRev');
@@ -495,30 +466,29 @@
     const heroRev = document.getElementById('heroRev');
     const heroProjMarg = document.getElementById('heroProjMargin');
     const heroMargDol = document.getElementById('heroMarginDollar');
+    const heroTargetMarg = document.getElementById('heroTargetMargin');
     
     const strategyBadge = document.getElementById('modelStrategyLabel');
 
     fbVendor.textContent = fC0.format(metrics.total.sp);
-    fbHcCount.textContent = totHc;
+    fbHcCount.textContent = totHc.toFixed(2);
     fbHcCost.textContent = "-" + fC0.format(totHcCost);
 
     if (metrics.total.u === 0) {
       strategyBadge.textContent = "MODEL: EVALUATING...";
       strategyBadge.style.background = "#f1f5f9";
       strategyBadge.style.color = "var(--amerit-dark)";
-      
+      heroTargetMarg.textContent = "0%";
       heroRev.textContent = "$0";
       heroProjMarg.textContent = "0%";
       heroProjMarg.style.color = "var(--amerit-yellow)";
       heroMargDol.textContent = "$0";
-
       fbTotalRev.textContent = "$0";
       fbFeeRev.textContent = "$0";
       fbPvpmRev.textContent = "$0";
       fbMarkupRev.textContent = "$0";
       fbMarginDollar.textContent = "$0";
       fbMarginDollar.style.color = "var(--text-main)";
-
       window._exportData = null;
       return;
     }
@@ -527,22 +497,24 @@
     let exportTotalRev = 0;
     let exportPvpmRev = 0;
 
-    let hybridPasses = stdMargin >= target;
-
-    if (isBundled || (stdRev > 2000000 && hybridPasses)) {
+    let u = metrics.total.u;
+    
+    if (isStrategic) {
       
-      let displayTitle = isBundled ? "MODEL: BUNDLED HYBRID ($95 FEE & 15% MARKUP)" : "MODEL: HYBRID ($95 FEE & 15% MARKUP)";
-      let displayColor = isBundled ? "var(--navy)" : "var(--good)";
-
-      strategyBadge.textContent = displayTitle;
-      strategyBadge.style.background = displayColor;
+      // STRATEGIC ACCOUNT (Baseline Pricing, Minimum 15% FOP)
+      let target = 0.15;
+      heroTargetMarg.textContent = (target * 100).toFixed(0) + '%';
+      
+      strategyBadge.textContent = "MODEL: STRATEGIC HYBRID ($95 FEE & 15% MARKUP)";
+      strategyBadge.style.background = "var(--navy)";
       strategyBadge.style.color = "#fff";
       
       let marginDollar = stdRev - grossCost;
+      let stdMarginPct = stdRev > 0 ? (marginDollar / stdRev) : 0;
 
       heroRev.textContent = fC0.format(stdRev);
-      heroProjMarg.textContent = (stdMargin * 100).toFixed(1) + '%';
-      heroProjMarg.style.color = (stdMargin >= target) ? "#fff" : "var(--danger)";
+      heroProjMarg.textContent = (stdMarginPct * 100).toFixed(1) + '%';
+      heroProjMarg.style.color = (stdMarginPct >= target) ? "#fff" : "var(--danger)";
       heroMargDol.textContent = fC0.format(marginDollar);
 
       fbTotalRev.textContent = fC0.format(stdRev);
@@ -553,16 +525,46 @@
       fbMarkupRev.textContent = fC0.format(metrics.total.sp * CONST.markup_std);
       
       fbMarginDollar.textContent = fC0.format(marginDollar);
-      fbMarginDollar.style.color = (stdMargin >= target) ? "var(--good)" : "var(--danger)";
+      fbMarginDollar.style.color = (stdMarginPct >= target) ? "var(--good)" : "var(--danger)";
 
       exportTotalRev = stdRev;
       
+    } else if (stdRev < 150000 || u <= 100) {
+      
+      // NON-STRATEGIC: PASS ON QUOTING
+      heroTargetMarg.textContent = 'N/A';
+      
+      strategyBadge.textContent = "MODEL: PASS ON QUOTING (BELOW THRESHOLDS)";
+      strategyBadge.style.background = "var(--danger)";
+      strategyBadge.style.color = "#fff";
+      
+      heroRev.textContent = "$0";
+      heroProjMarg.textContent = "0.0%";
+      heroProjMarg.style.color = "var(--danger)";
+      heroMargDol.textContent = "$0";
+
+      fbTotalRev.textContent = "$0";
+      fbFeeRev.textContent = "$0";
+      fbPvpmRev.textContent = "$0";
+      
+      fbMarkupRevLabel.textContent = "+ Vendor Invoice Markup (0%)";
+      fbMarkupRev.textContent = "$0";
+      
+      fbMarginDollar.textContent = "$0";
+      fbMarginDollar.style.color = "var(--danger)";
+
+      exportTotalRev = 0;
+      exportIsPvpm = false;
+      
     } else {
+      
+      // NON-STRATEGIC: PVPM MODEL (Forced to hit 20% FOP minimum)
+      let target = 0.20;
+      heroTargetMarg.textContent = (target * 100).toFixed(0) + '%';
       exportIsPvpm = true;
       
-      // FORCED PVPM LOGIC to hit target profit floor
       let targetRev = grossCost / (1 - target);
-      let markupRev_pvpm = metrics.total.sp * CONST.markup_pvpm;
+      let markupRev_pvpm = metrics.total.sp * CONST.markup_pvpm; // Uses new 20% max markup
       
       let mathPvpmRevNeeded = targetRev - metrics.total.sp - markupRev_pvpm;
       let targetPvpmAnnual = Math.max(mathPvpmRevNeeded, 0);
@@ -573,15 +575,7 @@
       let basePvpm = 0;
       if (unitsExclReeferMhe > 0) {
           let remainingPvpmAnnual = Math.max(0, targetPvpmAnnual - mhePvpmAnnualRev);
-          // CRITICAL UPDATE: Always round up (Math.ceil) to guarantee minimum margin floor is met
           basePvpm = Math.ceil(remainingPvpmAnnual / (unitsExclReeferMhe * 12));
-      }
-
-      // $200 PVPM HARD CAP RULE
-      let isCapped = false;
-      if (basePvpm > 200) {
-          basePvpm = 200;
-          isCapped = true;
       }
 
       let finalPvpmRev = (basePvpm * unitsExclReeferMhe * 12) + mhePvpmAnnualRev;
@@ -592,32 +586,24 @@
       exportTotalRev = finalRev;
       exportPvpmRev = finalPvpmRev;
 
-      if (isCapped) {
-          strategyBadge.textContent = `MODEL: PVPM ($200 / UNIT CAP REACHED)`;
-          strategyBadge.style.background = "var(--danger)";
-          strategyBadge.style.color = "#ffffff";
-          heroProjMarg.style.color = "var(--danger)";
-          fbMarginDollar.style.color = "var(--danger)";
-      } else {
-          strategyBadge.textContent = `MODEL: PVPM ($${basePvpm} / UNIT - EXCL REEFERS)`;
-          strategyBadge.style.background = "var(--amerit-yellow)";
-          strategyBadge.style.color = "var(--amerit-dark)";
-          heroProjMarg.style.color = "var(--amerit-yellow)";
-          fbMarginDollar.style.color = "var(--amerit-yellow)";
-      }
+      strategyBadge.textContent = `MODEL: PVPM ($${basePvpm} / UNIT - EXCL REEFERS)`;
+      strategyBadge.style.background = "var(--amerit-yellow)";
+      strategyBadge.style.color = "var(--amerit-dark)";
 
       heroRev.textContent = fC0.format(finalRev);
       heroProjMarg.textContent = (finalMarginPct * 100).toFixed(1) + '%';
+      heroProjMarg.style.color = "var(--amerit-yellow)";
       heroMargDol.textContent = fC0.format(marginDollar);
 
       fbTotalRev.textContent = fC0.format(finalRev);
       fbFeeRev.textContent = "$0 (Waived)";
       fbPvpmRev.textContent = fC0.format(finalPvpmRev);
       
-      fbMarkupRevLabel.textContent = "+ Vendor Invoice Markup (10%)";
+      fbMarkupRevLabel.textContent = "+ Vendor Invoice Markup (20%)";
       fbMarkupRev.textContent = fC0.format(markupRev_pvpm);
       
       fbMarginDollar.textContent = fC0.format(marginDollar);
+      fbMarginDollar.style.color = "var(--amerit-yellow)";
     }
 
     // Save state for Excel Export
@@ -636,6 +622,16 @@
   }
 
   async function exportToExcel() {
+    let isStrategic = document.getElementById('isStrategic').checked;
+    let u = parseInt(document.getElementById('heroUnits').textContent.replace(/,/g, ''));
+    let revStr = document.getElementById('fbTotalRev').textContent.replace(/[^0-9.-]+/g,"");
+    let stdRev = parseFloat(revStr) || 0;
+
+    if (!isStrategic && (stdRev === 0 || u <= 100)) {
+        alert("Deal does not meet minimum thresholds for quoting. Cannot export financials.");
+        return;
+    }
+
     if (!window._exportData) {
       alert("Please add units to calculate financials before exporting.");
       return;
@@ -669,6 +665,8 @@
         });
 
         const ratio = data.totalEvents > 0 ? (srvData.ev / data.totalEvents) : 0;
+        
+        // Exact fractional headcount cost per service
         const allocatedHcCost = srvData.hc * CONST.hc_cost; 
         
         let handlingFee = data.isPvpm ? 0 : (srvData.ev * CONST.fee);
@@ -688,7 +686,7 @@
 
         const rows = [
           { metric: 'Annual Events', value: Math.floor(srvData.ev) },
-          { metric: 'Headcount Demand (FTE)', value: srvData.hc },
+          { metric: 'Headcount Demand (FTE)', value: Number(srvData.hc.toFixed(2)) },
           { metric: 'Allocated Headcount Cost', value: allocatedHcCost },
           { metric: 'Vendor Spend (Before Markup)', value: srvData.sp },
           { metric: 'Handling Fee Revenue', value: handlingFee },
@@ -702,8 +700,10 @@
 
         rows.forEach(r => {
           const row = ws.addRow(r);
-          if (r.metric === 'Annual Events' || r.metric === 'Headcount Demand (FTE)') {
+          if (r.metric === 'Annual Events') {
             row.getCell('value').numFmt = '#,##0';
+          } else if (r.metric === 'Headcount Demand (FTE)') {
+            row.getCell('value').numFmt = '0.00';
           } else if (r.metric === 'FOP Margin (%)') {
             row.getCell('value').numFmt = '0.00%';
           } else {
@@ -733,7 +733,7 @@
 
   document.getElementById('resetBtn').addEventListener('click', () => {
     state = JSON.parse(JSON.stringify(DEFAULTS));
-    document.getElementById('isBundled').checked = false;
+    document.getElementById('isStrategic').checked = false;
     initUI();
     calculate();
   });
